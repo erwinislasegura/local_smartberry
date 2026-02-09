@@ -31,10 +31,6 @@ if (!isset($_SESSION['login_attempts'])) {
     $_SESSION['login_attempts'] = 0;
 }
 
-// Claves reCAPTCHA
-$siteKey = '6LcZrukrAAAAAGikMJAF8utszcdOin0XCpDSPWRp';
-$secretKey = '6LcZrukrAAAAAHC10OqwnsRaVjBT28xWovsfUgyE';
-
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -46,8 +42,6 @@ $secretKey = '6LcZrukrAAAAAHC10OqwnsRaVjBT28xWovsfUgyE';
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <script src="../../assest/js/sweetalert2@11.js"></script>
-  <!-- Google reCAPTCHA -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     /* Tus estilos originales */
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
@@ -135,7 +129,6 @@ $secretKey = '6LcZrukrAAAAAHC10OqwnsRaVjBT28xWovsfUgyE';
             <input type="checkbox" id="PRECARGA_EXPORTACION_FRUTA" style="margin-top:0;">
             <label for="PRECARGA_EXPORTACION_FRUTA" style="margin-bottom:0;">Cargar información pesada en segundo plano</label>
           </div>
-          <div class="g-recaptcha" data-sitekey="<?php echo $siteKey; ?>"></div>
           <button type="submit" name="ENTRAR" class="btn btn-login" style="margin-top:15px;">Entrar</button>
           <div style="display:flex; align-items:center; margin-top:10px; color: #2e7d32; font-weight: 600; font-size: 14px;">
             <span class="material-icons" style="margin-right:6px; font-size:20px;">lock</span>
@@ -227,33 +220,6 @@ if (isset($_POST['ENTRAR'])) {
             icon:"error",
             title:"Demasiados intentos",
             text:"Has superado el número máximo de intentos. Intenta más tarde."
-          });
-        </script>';
-        exit;
-    }
-
-    // Validar reCAPTCHA
-    if (!isset($_POST['g-recaptcha-response'])) {
-        echo '<script>
-          Swal.fire({
-            icon:"error",
-            title:"Captcha requerido",
-            text:"Por favor verifica que no eres un robot."
-          });
-        </script>';
-        exit;
-    }
-
-    $captcha_response = $_POST['g-recaptcha-response'];
-    $verify_response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$captcha_response}");
-    $response_data = json_decode($verify_response);
-
-    if (!$response_data->success) {
-        echo '<script>
-          Swal.fire({
-            icon:"error",
-            title:"Captcha incorrecto",
-            text:"Por favor verifica que no eres un robot."
           });
         </script>';
         exit;

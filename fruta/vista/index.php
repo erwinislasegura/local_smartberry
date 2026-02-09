@@ -175,20 +175,11 @@ if($ARRAYREGISTROSABIERTOS){
         <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <style>
-            .dashboard-card {
-                color: #fff;
-                border: 0;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-                height: 100%;
-            }
-            .compact-card .box-body {
-                padding: 12px;
-            }
-            .compact-card .box-header {
-                padding: 10px 12px;
+            section.content {
+                padding-top: 12px;
             }
             .dashboard-row {
-                margin-bottom: 10px;
+                margin-bottom: 12px;
             }
             .collage-row {
                 margin-left: -8px;
@@ -197,9 +188,6 @@ if($ARRAYREGISTROSABIERTOS){
             .collage-row > [class*='col-'] {
                 padding-left: 8px;
                 padding-right: 8px;
-            }
-            .collage-card {
-                height: 100%;
             }
             @media (min-width: 1200px) {
                 .col-xl-5th {
@@ -210,36 +198,63 @@ if($ARRAYREGISTROSABIERTOS){
             .row .col-xl-5th {
                 display: flex;
             }
-            .bg-gradient-sky { background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%); }
-            .bg-gradient-dusk { background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%); }
-            .bg-gradient-emerald { background: linear-gradient(135deg, #2ecc71 0%, #58d68d 100%); }
-            .bg-gradient-amber { background: linear-gradient(135deg, #f5a623 0%, #f7c46c 100%); }
-            .bg-gradient-teal { background: linear-gradient(135deg, #00a6a4 0%, #39c6c9 100%); }
-            .progress-sky { background-color: #1d8cf8; }
-            .progress-dusk { background-color: #7b42f6; }
-            .progress-emerald { background-color: #2ecc71; }
-            .progress-amber { background-color: #f5a623; }
-            .progress-ocean { background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%); }
-            .progress-coral { background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); }
-            .mini-progress { height: 6px; }
-            .mini-progress.super-thin { height: 4px; }
-            .compact-list .item {
-                padding: 6px 0;
-                border-bottom: 1px dashed #e6e6e6;
+            .dashboard-card {
+                background: #fff;
+                color: #1f2d3d;
+                border: 1px solid #e6e9ef;
+                box-shadow: none;
+                height: 100%;
             }
-            .compact-list .item:last-child {
-                border-bottom: none;
+            .dashboard-card .box-body {
+                padding: 14px 16px;
             }
-            .compact-table th, .compact-table td {
+            .metric-label {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: .4px;
+                color: #7a8794;
+                margin-bottom: 6px;
+            }
+            .metric-value {
+                font-size: 20px;
+                font-weight: 600;
+                margin: 0;
+                color: #1f2d3d;
+            }
+            .metric-icon {
+                font-size: 36px;
+                color: #c6ccd4;
+            }
+            .compact-card .box-body {
+                padding: 12px 14px;
+            }
+            .compact-card .box-header {
+                padding: 10px 14px;
+                border-bottom: 1px solid #eef1f4;
+            }
+            .compact-card .box-title {
+                font-weight: 600;
+            }
+            .compact-table th,
+            .compact-table td {
                 padding: 6px 4px;
                 font-size: 12px;
                 vertical-align: middle;
             }
-            .compact-table th { font-weight: 600; }
-            .badge-slim { padding: 2px 6px; font-size: 11px; }
-            section.content {
-                padding-top: 10px;
+            .compact-table th {
+                font-weight: 600;
             }
+            .mini-progress {
+                height: 6px;
+                background: #eef1f4;
+            }
+            .mini-progress.super-thin {
+                height: 4px;
+            }
+            .progress-sky { background-color: #3b82f6; }
+            .progress-dusk { background-color: #6366f1; }
+            .progress-emerald { background-color: #10b981; }
+            .progress-amber { background-color: #f59e0b; }
         </style>
         <!- FUNCIONES BASES -!>
         <script type="text/javascript">
@@ -269,61 +284,71 @@ if($ARRAYREGISTROSABIERTOS){
 
                         <div class="row dashboard-row">
                             <div class="col-xl-5th col-lg-6 col-12">
-                                <div class="box box-body dashboard-card bg-gradient-sky">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0 text-white-50">Kilos netos materia prima acumulados</p>
-                                            <h3 class="mt-0 mb-0 text-white"><?php echo number_format(round($kilosMateriaPrimaAcumulado, 0), 0, ",", "."); ?> kg</h3>
+                                <div class="box dashboard-card">
+                                    <div class="box-body">
+                                        <div class="flexbox align-items-center">
+                                            <div>
+                                                <div class="metric-label">Kilos netos materia prima acumulados</div>
+                                                <p class="metric-value"><?php echo number_format(round($kilosMateriaPrimaAcumulado, 0), 0, ",", "."); ?> kg</p>
+                                            </div>
+                                            <span class="icon-Add-cart metric-icon"></span>
                                         </div>
-                                        <span class="icon-Add-cart fs-40 text-white"></span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-xl-5th col-lg-6 col-12">
-                                <div class="box box-body dashboard-card bg-gradient-dusk">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0 text-white-50">Existencia neta (corte 05:00)</p>
-                                            <h3 class="mt-0 mb-0 text-white"><?php echo number_format(round($kilosMateriaPrimaHastaCinco, 0), 0, ",", "."); ?> kg</h3>
+                                <div class="box dashboard-card">
+                                    <div class="box-body">
+                                        <div class="flexbox align-items-center">
+                                            <div>
+                                                <div class="metric-label">Existencia neta (corte 05:00)</div>
+                                                <p class="metric-value"><?php echo number_format(round($kilosMateriaPrimaHastaCinco, 0), 0, ",", "."); ?> kg</p>
+                                            </div>
+                                            <span class="icon-Alarm-clock metric-icon"></span>
                                         </div>
-                                        <span class="icon-Alarm-clock fs-40 text-white"></span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-xl-5th col-lg-6 col-12">
-                                <div class="box box-body dashboard-card bg-gradient-teal">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0 text-white-50">Existencia neta en tiempo real</p>
-                                            <h3 class="mt-0 mb-0 text-white"><?php echo number_format(round($kilosMateriaPrimaActual, 0), 0, ",", "."); ?> kg</h3>
+                                <div class="box dashboard-card">
+                                    <div class="box-body">
+                                        <div class="flexbox align-items-center">
+                                            <div>
+                                                <div class="metric-label">Existencia neta en tiempo real</div>
+                                                <p class="metric-value"><?php echo number_format(round($kilosMateriaPrimaActual, 0), 0, ",", "."); ?> kg</p>
+                                            </div>
+                                            <span class="icon-Network metric-icon"></span>
                                         </div>
-                                        <span class="icon-Network fs-40 text-white"></span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-xl-5th col-lg-6 col-12">
-                                <div class="box box-body dashboard-card bg-gradient-emerald">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0 text-white-50">Proceso - kilos netos entrada</p>
-                                            <h3 class="mt-0 mb-0 text-white"><?php echo number_format(round($kilosEntradaProceso, 0), 0, ",", "."); ?> kg</h3>
+                                <div class="box dashboard-card">
+                                    <div class="box-body">
+                                        <div class="flexbox align-items-center">
+                                            <div>
+                                                <div class="metric-label">Proceso - kilos netos entrada</div>
+                                                <p class="metric-value"><?php echo number_format(round($kilosEntradaProceso, 0), 0, ",", "."); ?> kg</p>
+                                            </div>
+                                            <span class="icon-Incoming-mail metric-icon"></span>
                                         </div>
-                                        <span class="icon-Incoming-mail fs-40 text-white"></span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-xl-5th col-lg-6 col-12">
-                                <div class="box box-body dashboard-card bg-gradient-amber">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0 text-white-50">Proceso - kilos netos salida</p>
-                                            <h3 class="mt-0 mb-0 text-white"><?php echo number_format(round($kilosSalidaProceso, 0), 0, ",", "."); ?> kg</h3>
+                                <div class="box dashboard-card">
+                                    <div class="box-body">
+                                        <div class="flexbox align-items-center">
+                                            <div>
+                                                <div class="metric-label">Proceso - kilos netos salida</div>
+                                                <p class="metric-value"><?php echo number_format(round($kilosSalidaProceso, 0), 0, ",", "."); ?> kg</p>
+                                            </div>
+                                            <span class="icon-Outcoming-mail metric-icon"></span>
                                         </div>
-                                        <span class="icon-Outcoming-mail fs-40 text-white"></span>
                                     </div>
                                 </div>
                             </div>

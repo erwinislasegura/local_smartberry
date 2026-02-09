@@ -28,39 +28,9 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Claves reCAPTCHA (CORRECTAS Y UNIFICADAS)
-$recaptchaSiteKey = '6LcZrukrAAAAAGikMJAF8utszcdOin0XCpDSPWRp';
-$recaptchaSecretKey = '6LcZrukrAAAAAHC10OqwnsRaVjBT28xWovsfUgyE';
-
 // Helper para escapar salida
 function h($string) {
     return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
-}
-
-// Helper para verificar reCAPTCHA
-function verifyRecaptcha($token, $secret) {
-    if (empty($token)) return false;
-    $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . urlencode($secret) . '&response=' . urlencode($token);
-    if (function_exists('file_get_contents') && ini_get('allow_url_fopen')) {
-        $resp = @file_get_contents($url);
-        if ($resp !== false) {
-            $data = json_decode($resp, true);
-            return !empty($data['success']);
-        }
-    }
-    if (function_exists('curl_init')) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        $resp = curl_exec($ch);
-        curl_close($ch);
-        if ($resp !== false) {
-            $data = json_decode($resp, true);
-            return !empty($data['success']);
-        }
-    }
-    return false;
 }
 ?>
 <!DOCTYPE html>
@@ -73,8 +43,6 @@ function verifyRecaptcha($token, $secret) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="../../assest/js/sweetalert2@11.js"></script>
-  <!-- reCAPTCHA -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
     body,html{height:100%}
@@ -100,7 +68,6 @@ function verifyRecaptcha($token, $secret) {
     .right-panel{flex:2;position:relative;overflow:hidden}
     .slide{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s}
     .slide.active{opacity:1}
-    .recaptcha-note{font-size:.8rem;color:#666;margin-top:6px;text-align:center}
     .ssl-legend {
       display: flex;
       align-items: center;
@@ -138,11 +105,6 @@ function verifyRecaptcha($token, $secret) {
           <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:#333; margin-bottom:10px;">
             <input type="checkbox" id="PRECARGA_EXPORTACION_EXPORTADORA" style="margin-top:0;">
             <label for="PRECARGA_EXPORTACION_EXPORTADORA" style="margin-bottom:0;">Cargar información pesada en segundo plano</label>
-          </div>
-          <div style="margin:8px 0;">
-            <!-- reCAPTCHA corregido -->
-            <div class="g-recaptcha" data-sitekey="<?= h($recaptchaSiteKey) ?>"></div>
-            <div class="recaptcha-note">Protección humana mediante reCAPTCHA</div>
           </div>
           <div class="ssl-legend">
             <span class="material-icons">lock</span>
@@ -215,7 +177,6 @@ if (isset($_POST['ENTRAR'])) {
 
     $NOMBRE = trim($_POST['NOMBRE'] ?? '');
     $CONTRASENA = $_POST['CONTRASENA'] ?? '';
-    $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
 
     if ($NOMBRE === '' || $CONTRASENA === '') {
         echo '<script>Swal.fire({ icon:"warning", title:"Alerta", text:"Debes ingresar usuario y contraseña" });</script>';
@@ -224,15 +185,6 @@ if (isset($_POST['ENTRAR'])) {
 
     if (mb_strlen($CONTRASENA) < 6) {
         echo '<script>Swal.fire({ icon:"warning", title:"Contraseña inválida", text:"Debe tener al menos 6 caracteres." });</script>';
-        exit;
-    }
-
-    if (empty($recaptchaToken)) {
-        echo '<script>Swal.fire({ icon:"error", title:"Captcha requerido", text:"Por favor verifica que no eres un robot." });</script>';
-        exit;
-    }
-    if (!verifyRecaptcha($recaptchaToken, $recaptchaSecretKey)) {
-        echo '<script>Swal.fire({ icon:"error", title:"Captcha inválido", text:"La verificación captcha falló. Intenta nuevamente." });</script>';
         exit;
     }
 
