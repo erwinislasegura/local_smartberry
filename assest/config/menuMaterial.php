@@ -185,6 +185,12 @@
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="verUsuarioActividad.php"><i class="ion ion-bag"></i> Mi Actividad</a>              
               <div class="dropdown-divider"></div>
+              <span class="dropdown-header">Cambiar Módulo</span>
+              <a class="dropdown-item" href="../../fruta/index.php"><i class="ion ion-leaf"></i> Fruta</a>
+              <a class="dropdown-item" href="../../exportadora/index.php"><i class="ion ion-plane"></i> Exportadora</a>
+              <a class="dropdown-item" href="../../material/index.php"><i class="ion ion-cube"></i> Materiales</a>
+              <a class="dropdown-item" href="../../estadistica/index.php"><i class="ion ion-stats-bars"></i> Estadísticas</a>
+              <div class="dropdown-divider"></div>
               <a class="dropdown-item" data-toggle="modal" data-target="#modal-empresa" title="Cambiar">
                 <i class="ti-settings"></i>Cambiar Empresa
               </a>
