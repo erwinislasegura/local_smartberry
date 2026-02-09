@@ -9,9 +9,9 @@ class BDCONFIG {
     public function __construct()
     {
         $this->HOST = "localhost";
-        $this->USER = "sm_produccion";
-        $this->PASS = "D6zZPo9cS*5DXW@S";
-        $this->DBNAME = "smartberry_produccion";
+        $this->USER = "root";
+        $this->PASS = "";
+        $this->DBNAME = "smartberry";
 
     }
 
