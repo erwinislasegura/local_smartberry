@@ -1,0 +1,95 @@
+:root {
+  --login-card-shadow: 0 20px 45px rgba(0, 8, 26, 0.14);
+}
+
+.login-body {
+  background: var(--bs-body-bg);
+}
+
+.login-hero {
+  background: linear-gradient(135deg, rgba(93, 216, 158, 0.08), rgba(6, 24, 54, 0.08));
+  border-radius: 1.5rem;
+  padding: 32px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+
+.login-hero h1 {
+  font-size: clamp(1.8rem, 2.5vw, 2.6rem);
+  font-weight: 700;
+}
+
+.login-hero p {
+  color: var(--bs-gray-600);
+}
+
+.login-card {
+  border-radius: 1.5rem;
+  border: 1px solid var(--bs-border-color);
+  box-shadow: var(--login-card-shadow);
+}
+
+.login-logo {
+  width: 170px;
+  height: auto;
+}
+
+.login-tab.nav-tabs {
+  border-bottom: none;
+  gap: 8px;
+}
+
+.login-tab .nav-link {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  color: var(--bs-gray-700);
+  background: var(--bs-light);
+}
+
+.login-tab .nav-link.active {
+  background: var(--bs-primary);
+  color: #fff;
+  border-color: var(--bs-primary);
+  box-shadow: 0 10px 20px rgba(93, 216, 158, 0.3);
+}
+
+.login-input-group {
+  position: relative;
+}
+
+.login-input-group iconify-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: var(--bs-gray-500);
+}
+
+.login-input-group .form-control {
+  padding-left: 42px;
+}
+
+.login-support {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--bs-gray-600);
+}
+
+.login-footer-links a {
+  color: var(--bs-gray-600);
+  font-size: 0.8rem;
+}
+
+.login-footer-links a:hover {
+  color: var(--bs-primary);
+}
