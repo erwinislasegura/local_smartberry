@@ -26,21 +26,6 @@ $CONTRASENA = "";
 $TEMPORADA = $_SESSION["ID_TEMPORADA"] ?? "";
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
 
-// === Claves reCAPTCHA ===
-$recaptchaSiteKey = '6LcZrukrAAAAAGikMJAF8utszcdOin0XCpDSPWRp';
-$recaptchaSecretKey = '6LcZrukrAAAAAHC10OqwnsRaVjBT28xWovsfUgyE';
-
-// === Verificación reCAPTCHA ===
-function verifyRecaptcha($token, $secret) {
-    if (empty($token)) return false;
-    $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . urlencode($secret) . '&response=' . urlencode($token);
-    $resp = file_get_contents($url);
-    if ($resp !== false) {
-        $data = json_decode($resp, true);
-        return !empty($data['success']);
-    }
-    return false;
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -52,7 +37,6 @@ function verifyRecaptcha($token, $secret) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="../../assest/js/sweetalert2@11.js"></script>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
     body,html{height:100%;background:#f5f7fa;}
@@ -138,8 +122,6 @@ function verifyRecaptcha($token, $secret) {
             <?php endforeach;?>
           </select>
 
-          <!-- reCAPTCHA -->
-          <div class="g-recaptcha" data-sitekey="<?= $recaptchaSiteKey ?>"></div>
           <div class="ssl-legend">
             <span class="material-icons">lock</span>
             Conexión segura por SSL
@@ -191,16 +173,6 @@ function verifyRecaptcha($token, $secret) {
 <?php
 // === PROCESO DE LOGIN ===
 if (isset($_POST['ENTRAR'])) {
-
-    $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
-    if (empty($recaptchaToken)) {
-        echo '<script>Swal.fire({icon:"error",title:"Captcha requerido",text:"Por favor verifica que no eres un robot."});</script>';
-        exit;
-    }
-    if (!verifyRecaptcha($recaptchaToken, $recaptchaSecretKey)) {
-        echo '<script>Swal.fire({icon:"error",title:"Captcha inválido",text:"Verificación reCAPTCHA fallida. Intenta nuevamente."});</script>';
-        exit;
-    }
 
     if (empty($_POST['NOMBRE']) || empty($_POST['CONTRASENA'])) {
         echo '<script>
