@@ -17,3 +17,28 @@ INSERT INTO `principal_temporada` (`ID_TEMPORADA`, `FECHA_INICIO_TEMPORADA`, `FE
 
 INSERT INTO `principal_planta` (`ID_PLANTA`, `NOMBRE_PLANTA`, `RAZON_SOCIAL_PLANTA`, `DIRECCION_PLANTA`, `CODIGO_SAG_PLANTA`, `FDA_PLANTA`, `TPLANTA`, `ESTADO_REGISTRO`, `INGRESO`, `MODIFICACION`, `ID_COMUNA`, `ID_PROVINCIA`, `ID_REGION`, `ID_USUARIOI`, `ID_USUARIOM`) VALUES
 (1, 'Planta Demo Eisla', 'Planta Demo Eisla SpA', 'Camino Demo 456', 12345, NULL, 1, 1, CURDATE(), CURDATE(), NULL, NULL, NULL, 1, 1);
+
+-- Relación de mercados autorizados por productor (evitar duplicados)
+DELETE t1 FROM fruta_rmercado t1
+INNER JOIN fruta_rmercado t2
+WHERE t1.ID_RMERCADO > t2.ID_RMERCADO
+  AND t1.ID_PRODUCTOR = t2.ID_PRODUCTOR
+  AND t1.ID_MERCADO = t2.ID_MERCADO;
+
+SET @idx_existe := (
+  SELECT COUNT(1)
+  FROM information_schema.statistics
+  WHERE table_schema = DATABASE()
+    AND table_name = 'fruta_rmercado'
+    AND index_name = 'uk_fruta_rmercado_productor_mercado'
+);
+
+SET @sql_idx := IF(
+  @idx_existe = 0,
+  'ALTER TABLE fruta_rmercado ADD UNIQUE KEY `uk_fruta_rmercado_productor_mercado` (`ID_PRODUCTOR`,`ID_MERCADO`)',
+  'SELECT "Indice uk_fruta_rmercado_productor_mercado ya existe"'
+);
+
+PREPARE stmt_idx FROM @sql_idx;
+EXECUTE stmt_idx;
+DEALLOCATE PREPARE stmt_idx;
