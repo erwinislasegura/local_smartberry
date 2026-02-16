@@ -232,26 +232,48 @@ if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
     if ($NUEVOTRANSPORTE == "") {
         $MENSAJEMODAL = "TRANSPORTE_VACIO";
     } else {
-        $ARRAYNUMERO = $TRANSPORTE_ADO->obtenerNumero($EMPRESAS);
-        $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
-        $TRANSPORTE = new TRANSPORTE();
-        $TRANSPORTE->__SET('NUMERO_TRANSPORTE', $NUMERO);
-        $TRANSPORTE->__SET('RUT_TRANSPORTE', 0);
-        $TRANSPORTE->__SET('DV_TRANSPORTE', 0);
-        $TRANSPORTE->__SET('NOMBRE_TRANSPORTE', $NUEVOTRANSPORTE);
-        $TRANSPORTE->__SET('GIRO_TRANSPORTE', '');
-        $TRANSPORTE->__SET('RAZON_SOCIAL_TRANSPORTE', '');
-        $TRANSPORTE->__SET('DIRECCION_TRANSPORTE', '');
-        $TRANSPORTE->__SET('CONTACTO_TRANSPORTE', '');
-        $TRANSPORTE->__SET('TELEFONO_TRANSPORTE', '');
-        $TRANSPORTE->__SET('EMAIL_TRANSPORTE', '');
-        $TRANSPORTE->__SET('NOTA_TRANSPORTE', 'Registro rápido desde recepción MP');
-        $TRANSPORTE->__SET('ID_EMPRESA', $EMPRESAS);
-        $TRANSPORTE->__SET('ID_USUARIOI', $IDUSUARIOS);
-        $TRANSPORTE->__SET('ID_USUARIOM', $IDUSUARIOS);
-        $TRANSPORTE_ADO->agregarTransporte($TRANSPORTE);
+        $EXISTETRANSPORTE = "";
+        foreach ($ARRAYTRANSPORTE as $r) {
+            if (strtolower(trim($r['NOMBRE_TRANSPORTE'])) == strtolower($NUEVOTRANSPORTE)) {
+                $EXISTETRANSPORTE = $r['ID_TRANSPORTE'];
+                break;
+            }
+        }
+
+        if ($EXISTETRANSPORTE != "") {
+            $TRANSPORTE = $EXISTETRANSPORTE;
+            $MENSAJEMODAL = "TRANSPORTE_EXISTE";
+        } else {
+            $ARRAYNUMERO = $TRANSPORTE_ADO->obtenerNumero($EMPRESAS);
+            $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
+            $TRANSPORTE = new TRANSPORTE();
+            $TRANSPORTE->__SET('NUMERO_TRANSPORTE', $NUMERO);
+            $TRANSPORTE->__SET('RUT_TRANSPORTE', 0);
+            $TRANSPORTE->__SET('DV_TRANSPORTE', 0);
+            $TRANSPORTE->__SET('NOMBRE_TRANSPORTE', $NUEVOTRANSPORTE);
+            $TRANSPORTE->__SET('GIRO_TRANSPORTE', '');
+            $TRANSPORTE->__SET('RAZON_SOCIAL_TRANSPORTE', '');
+            $TRANSPORTE->__SET('DIRECCION_TRANSPORTE', '');
+            $TRANSPORTE->__SET('CONTACTO_TRANSPORTE', '');
+            $TRANSPORTE->__SET('TELEFONO_TRANSPORTE', 0);
+            $TRANSPORTE->__SET('EMAIL_TRANSPORTE', '');
+            $TRANSPORTE->__SET('NOTA_TRANSPORTE', 'Registro rápido desde recepción MP');
+            $TRANSPORTE->__SET('ID_EMPRESA', $EMPRESAS);
+            $TRANSPORTE->__SET('ID_USUARIOI', $IDUSUARIOS);
+            $TRANSPORTE->__SET('ID_USUARIOM', $IDUSUARIOS);
+            $TRANSPORTE_ADO->agregarTransporte($TRANSPORTE);
+            $MENSAJEMODAL = "TRANSPORTE_OK";
+        }
+
         $ARRAYTRANSPORTE = $TRANSPORTE_ADO->listarTransportePorEmpresaCBX($EMPRESAS);
-        $MENSAJEMODAL = "TRANSPORTE_OK";
+        if ($MENSAJEMODAL == "TRANSPORTE_OK") {
+            foreach ($ARRAYTRANSPORTE as $r) {
+                if (strtolower(trim($r['NOMBRE_TRANSPORTE'])) == strtolower($NUEVOTRANSPORTE)) {
+                    $TRANSPORTE = $r['ID_TRANSPORTE'];
+                    break;
+                }
+            }
+        }
         $NUEVOTRANSPORTE = "";
     }
 }
@@ -264,22 +286,47 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
     if ($NUEVOCONDUCTORRUT == "" || $NUEVOCONDUCTORNOMBRE == "") {
         $MENSAJEMODAL = "CONDUCTOR_VACIO";
     } else {
-        $ARRAYNUMERO = $CONDUCTOR_ADO->obtenerNumero($EMPRESAS);
-        $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
-        $CONDUCTOR = new CONDUCTOR();
-        $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
-        $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
-        $CONDUCTOR->__SET('DV_CONDUCTOR', 0);
-        $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
-        $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
-        $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
-        $CONDUCTOR->__SET('EMAIL_CONDUCTOR', '');
-        $CONDUCTOR->__SET('ID_EMPRESA', $EMPRESAS);
-        $CONDUCTOR->__SET('ID_USUARIOI', $IDUSUARIOS);
-        $CONDUCTOR->__SET('ID_USUARIOM', $IDUSUARIOS);
-        $CONDUCTOR_ADO->agregarConductor($CONDUCTOR);
+        $EXISTECONDUCTOR = "";
+        foreach ($ARRAYCONDUCTOR as $r) {
+            if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
+                $EXISTECONDUCTOR = $r['ID_CONDUCTOR'];
+                break;
+            }
+        }
+
+        if ($EXISTECONDUCTOR != "") {
+            $CONDUCTOR = $EXISTECONDUCTOR;
+            $MENSAJEMODAL = "CONDUCTOR_EXISTE";
+        } else {
+            if ($NUEVOCONDUCTORTELEFONO == "") {
+                $NUEVOCONDUCTORTELEFONO = 0;
+            }
+            $ARRAYNUMERO = $CONDUCTOR_ADO->obtenerNumero($EMPRESAS);
+            $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
+            $CONDUCTOR = new CONDUCTOR();
+            $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
+            $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
+            $CONDUCTOR->__SET('DV_CONDUCTOR', 0);
+            $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
+            $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
+            $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
+            $CONDUCTOR->__SET('EMAIL_CONDUCTOR', '');
+            $CONDUCTOR->__SET('ID_EMPRESA', $EMPRESAS);
+            $CONDUCTOR->__SET('ID_USUARIOI', $IDUSUARIOS);
+            $CONDUCTOR->__SET('ID_USUARIOM', $IDUSUARIOS);
+            $CONDUCTOR_ADO->agregarConductor($CONDUCTOR);
+            $MENSAJEMODAL = "CONDUCTOR_OK";
+        }
+
         $ARRAYCONDUCTOR = $CONDUCTOR_ADO->listarConductorPorEmpresaCBX($EMPRESAS);
-        $MENSAJEMODAL = "CONDUCTOR_OK";
+        if ($MENSAJEMODAL == "CONDUCTOR_OK") {
+            foreach ($ARRAYCONDUCTOR as $r) {
+                if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
+                    $CONDUCTOR = $r['ID_CONDUCTOR'];
+                    break;
+                }
+            }
+        }
         $NUEVOCONDUCTORRUT = "";
         $NUEVOCONDUCTORNOMBRE = "";
         $NUEVOCONDUCTORTELEFONO = "";
@@ -931,6 +978,20 @@ if (isset($_POST)) {
                         icon: 'success',
                         title: 'Conductor agregado',
                         text: 'Se agregó correctamente el conductor.'
+                    });
+                }
+                if (mensajeModal === 'TRANSPORTE_EXISTE') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Transporte existente',
+                        text: 'El transporte ya estaba registrado y se seleccionó en la lista.'
+                    });
+                }
+                if (mensajeModal === 'CONDUCTOR_EXISTE') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Conductor existente',
+                        text: 'El conductor ya estaba registrado y se seleccionó en la lista.'
                     });
                 }
                 if (mensajeModal === 'TRANSPORTE_VACIO') {
