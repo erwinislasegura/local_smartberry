@@ -8,6 +8,8 @@ include_once '../../assest/controlador/TPRODUCTOR_ADO.php';
 include_once '../../assest/controlador/COMUNA_ADO.php';
 include_once '../../assest/controlador/PROVINCIA_ADO.php';
 include_once '../../assest/controlador/REGION_ADO.php';
+include_once '../../assest/controlador/MERCADO_ADO.php';
+include_once '../../assest/controlador/RMERCADO_ADO.php';
 
 include_once '../../assest/controlador/PRODUCTOR_ADO.php';
 include_once '../../assest/modelo/PRODUCTOR.php';
@@ -19,6 +21,8 @@ $TPRODUCTOR_ADO =  new TPRODUCTOR_ADO();
 $COMUNA_ADO =  new COMUNA_ADO();
 $PROVINCIA_ADO =  new PROVINCIA_ADO();
 $REGION_ADO =  new REGION_ADO();
+$MERCADO_ADO =  new MERCADO_ADO();
+$RMERCADO_ADO =  new RMERCADO_ADO();
 
 $PRODUCTOR_ADO =  new PRODUCTOR_ADO();
 //INIICIALIZAR MODELO
@@ -49,7 +53,7 @@ $PROVINCIA = "";
 $REGION = "";
 $TPRODUCTOR = "";
 $NUMERO = "";
-
+$MERCADOS = array();
 
 
 $SINO = "";
@@ -71,6 +75,8 @@ $ARRAYNUMERO = "";
 $ARRAYCOMUNA = "";
 $ARRAYPROVINCIA = "";
 $ARRAYREGION = "";
+$ARRAYMERCADO = "";
+$ARRAYRMERCADOPRODUCTOR = "";
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
 $ARRAYPRODUCTOR = $PRODUCTOR_ADO->listarProductorPorEmpresaCBX($EMPRESAS);
@@ -81,6 +87,7 @@ $ARRAYTPRODUCTOR = $TPRODUCTOR_ADO->listarTproductorPorEmpresaCBX($EMPRESAS);
 $ARRAYCOMUNA = $COMUNA_ADO->listarComuna3CBX();
 $ARRAYPROVINCIA  = $PROVINCIA_ADO->listarProvincia3CBX();
 $ARRAYREGION = $REGION_ADO->listarRegion3CBX();
+$ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
 
 
 include_once "../../assest/config/validarDatosUrl.php";
@@ -144,6 +151,11 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TPRODUCTOR = "" . $r['ID_TPRODUCTOR'];
         endforeach;
 
+        $ARRAYRMERCADOPRODUCTOR = $RMERCADO_ADO->buscarPorProductor($IDOP);
+        foreach ($ARRAYRMERCADOPRODUCTOR as $r2) :
+            $MERCADOS[] = "" . $r2['ID_MERCADO'];
+        endforeach;
+
     }
     //1 = ACTIVAR
     if ($OP == "1") {
@@ -177,6 +189,11 @@ if (isset($id_dato) && isset($accion_dato)) {
             $PROVINCIA = "" . $r['ID_PROVINCIA'];
             $REGION = "" . $r['ID_REGION'];
             $TPRODUCTOR = "" . $r['ID_TPRODUCTOR'];
+        endforeach;
+
+        $ARRAYRMERCADOPRODUCTOR = $RMERCADO_ADO->buscarPorProductor($IDOP);
+        foreach ($ARRAYRMERCADOPRODUCTOR as $r2) :
+            $MERCADOS[] = "" . $r2['ID_MERCADO'];
         endforeach;
 
     }
@@ -214,6 +231,11 @@ if (isset($id_dato) && isset($accion_dato)) {
             $REGION = "" . $r['ID_REGION'];
             $TPRODUCTOR = "" . $r['ID_TPRODUCTOR'];
         endforeach;
+
+        $ARRAYRMERCADOPRODUCTOR = $RMERCADO_ADO->buscarPorProductor($IDOP);
+        foreach ($ARRAYRMERCADOPRODUCTOR as $r2) :
+            $MERCADOS[] = "" . $r2['ID_MERCADO'];
+        endforeach;
     }
 
     //ver =  OBTENCION DE DATOS PARA LA VISUALIZAAR INFORMAICON DE REGISTRO
@@ -248,6 +270,11 @@ if (isset($id_dato) && isset($accion_dato)) {
             $PROVINCIA = "" . $r['ID_PROVINCIA'];
             $REGION = "" . $r['ID_REGION'];
             $TPRODUCTOR = "" . $r['ID_TPRODUCTOR'];
+        endforeach;
+
+        $ARRAYRMERCADOPRODUCTOR = $RMERCADO_ADO->buscarPorProductor($IDOP);
+        foreach ($ARRAYRMERCADOPRODUCTOR as $r2) :
+            $MERCADOS[] = "" . $r2['ID_MERCADO'];
         endforeach;
     }
 }
@@ -313,6 +340,9 @@ if($_POST){
     if (isset($_REQUEST['TPRODUCTOR'])) {
         $TPRODUCTOR = $_REQUEST['TPRODUCTOR'];
     }
+    if (isset($_REQUEST['MERCADOS']) && is_array($_REQUEST['MERCADOS'])) {
+        $MERCADOS = $_REQUEST['MERCADOS'];
+    }
 }
 
 
@@ -355,7 +385,7 @@ if($_POST){
                     COMUNA = document.getElementById("COMUNA").selectedIndex;
                     PROVINCIA = document.getElementById("PROVINCIA").selectedIndex;
                     REGION = document.getElementById("REGION").selectedIndex;
-
+                    MERCADOS = document.getElementById("MERCADOS").selectedOptions.length;
 
                     document.getElementById('val_nombre').innerHTML = "";
                     document.getElementById('val_rut').innerHTML = "";
@@ -375,6 +405,7 @@ if($_POST){
                     document.getElementById('val_comuna').innerHTML = "";
                     document.getElementById('val_provincia').innerHTML = "";
                     document.getElementById('val_region').innerHTML = "";
+                    document.getElementById('val_mercados').innerHTML = "";
 
 
                     if (RUTPRODUCTOR == null || RUTPRODUCTOR.length == 0 || /^\s+$/.test(RUTPRODUCTOR)) {
@@ -524,6 +555,14 @@ if($_POST){
                         return false;
                     }
                     document.form_reg_dato.REGION.style.borderColor = "#4AF575";
+
+                    if (MERCADOS == null || MERCADOS == 0) {
+                        document.form_reg_dato.MERCADOS.focus();
+                        document.form_reg_dato.MERCADOS.style.borderColor = "#FF0000";
+                        document.getElementById('val_mercados').innerHTML = "NO HA SELECCIONADO NINGUN MERCADO";
+                        return false;
+                    }
+                    document.form_reg_dato.MERCADOS.style.borderColor = "#4AF575";
 
                     if (TPRODUCTOR == null || TPRODUCTOR == 0) {
                         document.form_reg_dato.TPRODUCTOR.focus();
@@ -781,6 +820,23 @@ if($_POST){
                                                         </button>
                                                     </div>
                                                 </div>   
+                                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label>Mercados Autorizados de Exportación</label>
+                                                        <select class="form-control select2" id="MERCADOS" name="MERCADOS[]" style="width: 100%;" multiple="multiple" <?php echo $DISABLED; ?>>
+                                                            <?php foreach ($ARRAYMERCADO as $r) : ?>
+                                                                <?php if ($ARRAYMERCADO) {    ?>
+                                                                    <option value="<?php echo $r['ID_MERCADO']; ?>" <?php if (in_array($r['ID_MERCADO'], $MERCADOS)) { echo "selected";  } ?>>
+                                                                        <?php echo $r['NOMBRE_MERCADO'] ?>
+                                                                    </option>
+                                                                <?php } else { ?>
+                                                                    <option>No Hay Datos Registrados </option>
+                                                                <?php } ?>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <label id="val_mercados" class="validacion"> </label>
+                                                    </div>
+                                                </div>
                                                 <div class="col-xxl-10 col-xl-10 col-lg-10 col-md-10 col-sm-9 col-9 col-xs-9">
                                                     <div class="form-group">
                                                         <label>Tipo Productor</label>
@@ -1019,7 +1075,8 @@ if($_POST){
                 $PRODUCTOR->__SET('ID_USUARIOI', $IDUSUARIOS);
                 $PRODUCTOR->__SET('ID_USUARIOM', $IDUSUARIOS);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
-                $PRODUCTOR_ADO->agregarProductor($PRODUCTOR);
+                $IDPRODUCTOR = $PRODUCTOR_ADO->agregarProductor($PRODUCTOR);
+                $RMERCADO_ADO->guardarMercadosPorProductor($_REQUEST['EMPRESA'], $IDPRODUCTOR, $MERCADOS, $IDUSUARIOS);
 
                 $AUSUARIO_ADO->agregarAusuario2("NULL",3,1,"".$_SESSION["NOMBRE_USUARIO"].", Registro de Productor.","fruta_productor","NULL",$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'],'NULL',$_SESSION['ID_TEMPORADA'] );  
 
@@ -1064,6 +1121,7 @@ if($_POST){
                 $PRODUCTOR->__SET('ID_PRODUCTOR', $_REQUEST['ID']);
                 //LLAMADA AL METODO DE EDICION DEL CONTROLADOR
                 $PRODUCTOR_ADO->actualizarProductor($PRODUCTOR);
+                $RMERCADO_ADO->guardarMercadosPorProductor($_REQUEST['EMPRESA'], $_REQUEST['ID'], $MERCADOS, $IDUSUARIOS);
 
                 $AUSUARIO_ADO->agregarAusuario2("NULL",3,2,"".$_SESSION["NOMBRE_USUARIO"].", Modificación de Productor.","fruta_productor", $_REQUEST['ID'],$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'],'NULL',$_SESSION['ID_TEMPORADA'] );     
                 

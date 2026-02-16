@@ -290,7 +290,78 @@ class RMERCADO_ADO {
 
 
     
-    public function listarRmercadoPorEmpresaCBX($IDEMPRESA){
+
+
+    public function eliminarPorProductor($IDPRODUCTOR){
+        try{
+            $query = "DELETE FROM fruta_rmercado WHERE ID_PRODUCTOR = ?;";
+            $this->conexion->prepare($query)
+            ->execute(
+                array($IDPRODUCTOR)
+            );
+
+        }catch(Exception $e){
+            die($e->getMessage());
+        }
+    }
+
+    public function guardarMercadosPorProductor($IDEMPRESA, $IDPRODUCTOR, $ARRAYMERCADO, $IDUSUARIO){
+        try{
+            $IDPRODUCTOR = (int)$IDPRODUCTOR;
+            $IDEMPRESA = (int)$IDEMPRESA;
+            $IDUSUARIO = (int)$IDUSUARIO;
+
+            $ARRAYMERCADO = array_unique(array_filter(array_map('intval', (array)$ARRAYMERCADO)));
+
+            $this->eliminarPorProductor($IDPRODUCTOR);
+
+            if (!is_array($ARRAYMERCADO) || count($ARRAYMERCADO) == 0) {
+                return;
+            }
+
+            $datos=$this->conexion->prepare("SELECT IFNULL(MAX(NUMERO_RMERCADO),0) AS NUMERO FROM fruta_rmercado WHERE ID_EMPRESA = ?;");
+            $datos->execute(array($IDEMPRESA));
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            $contador = (int)$resultado[0]['NUMERO'] + 1;
+            $query = "INSERT INTO fruta_rmercado (
+                                            NUMERO_RMERCADO,
+                                            ID_MERCADO,
+                                            ID_PRODUCTOR,
+                                            ID_EMPRESA,
+                                            ID_USUARIOI,
+                                            ID_USUARIOM,
+                                            INGRESO,
+                                            MODIFICACION,
+                                            ESTADO_REGISTRO
+                                        ) VALUES (?, ?, ?, ?, ?, ?, SYSDATE(), SYSDATE(), 1);";
+
+            foreach ($ARRAYMERCADO as $IDMERCADO) {
+                if ($IDMERCADO <= 0) {
+                    continue;
+                }
+
+                $this->conexion->prepare($query)
+                ->execute(
+                    array(
+                        $contador,
+                        $IDMERCADO,
+                        $IDPRODUCTOR,
+                        $IDEMPRESA,
+                        $IDUSUARIO,
+                        $IDUSUARIO
+                    )
+                );
+                $contador++;
+            }
+
+        }catch(Exception $e){
+            die($e->getMessage());
+        }
+    }
+
+        public function listarRmercadoPorEmpresaCBX($IDEMPRESA){
         try{
             
             $datos=$this->conexion->prepare("SELECT * FROM  fruta_rmercado  
