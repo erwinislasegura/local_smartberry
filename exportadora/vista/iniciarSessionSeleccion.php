@@ -98,7 +98,7 @@ if (isset($_SESSION["ID_TEMPORADA"])) {
     }
   </script>
 </head>
-<body>
+<body class="sistemRR">
   <div class="container">
     <!-- Panel selección -->
     <div class="left-panel">

@@ -219,7 +219,7 @@ if (isset($_SESSION['parametro']) && isset($_SESSION['parametro1'])) {
 
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" onload="mueveReloj()">
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" onload="mueveReloj()">
     <div class="wrapper">
         <?php include_once "../config/menu.php"; ?>
 

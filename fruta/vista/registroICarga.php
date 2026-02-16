@@ -2592,7 +2592,7 @@ if (isset($_POST)) {
         <script src="../../assest/js/multisteps.js"></script>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <!-- LLAMADA AL MENU PRINCIPAL DE LA PAGINA -->
             <?php include_once "../../assest/config/menuFruta.php";

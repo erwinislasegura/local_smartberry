@@ -146,7 +146,7 @@ $ARRAYRECEPCIONMP = filtrarPorEmpresa($ARRAYRECEPCIONMP, $EMPRESAS);
             </script>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <?php include_once "../../assest/config/menuOpera.php"; ?>
         <!-- Content Wrapper. Contains page content -->

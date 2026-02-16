@@ -80,3 +80,55 @@ FORMATO DE MENSAJE DE VALIDACION DE FORMULARIO
     text-align: end;
 
 }
+
+
+/*
+ * ESTILO GLOBAL SISTEMARR
+ * - Bordes redondeados en campos
+ * - Altura compacta para formularios
+ */
+.sistemRR .form-group {
+    margin-bottom: 10px;
+}
+
+.sistemRR label,
+.sistemRR .form-group label,
+.sistemRR .modal-body label {
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.sistemRR .form-control,
+.sistemRR .select2-container--default .select2-selection--single,
+.sistemRR .select2-container--default .select2-selection--multiple,
+.sistemRR .input-group-text {
+    border-radius: 8px !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    font-size: 12px !important;
+}
+
+
+
+.sistemRR .select2-container--default .select2-selection--single {
+    height: 34px !important;
+}
+
+.sistemRR .select2-container--default .select2-selection--multiple {
+    min-height: 34px !important;
+}
+
+.sistemRR textarea.form-control {
+    min-height: 70px !important;
+    height: auto !important;
+}
+
+.sistemRR .select2-container .select2-selection--single .select2-selection__rendered {
+    line-height: 32px !important;
+    padding-left: 10px;
+    font-size: 12px !important;
+}
+
+.sistemRR .select2-container .select2-selection--single .select2-selection__arrow {
+    height: 34px !important;
+}
