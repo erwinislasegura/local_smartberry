@@ -388,7 +388,7 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
 
 if ($ESAJAXMODAL && (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL']) || isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL']))) {
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($RESPUESTAAJAXMODAL);
+    echo 'AJAX_MODAL_JSON::' . json_encode($RESPUESTAAJAXMODAL);
     exit;
 }
 
@@ -1032,12 +1032,29 @@ if (isset($_POST)) {
                         $select.append(new Option(texto, id, true, true));
                     }
                     $select.val(id).trigger('change');
+                    if (selectId === 'TRANSPORTE') {
+                        $('#TRANSPORTEE').val(id);
+                    }
+                    if (selectId === 'CONDUCTOR') {
+                        $('#CONDUCTORE').val(id);
+                    }
                 }
 
                 function obtenerJsonDesdeRespuesta(texto) {
                     if (typeof texto !== 'string') {
                         return null;
                     }
+
+                    var marca = 'AJAX_MODAL_JSON::';
+                    var posMarca = texto.indexOf(marca);
+                    if (posMarca !== -1) {
+                        var textoJsonMarcado = texto.substring(posMarca + marca.length).trim();
+                        try {
+                            return JSON.parse(textoJsonMarcado);
+                        } catch (eMarca) {
+                        }
+                    }
+
                     try {
                         return JSON.parse(texto);
                     } catch (e) {
