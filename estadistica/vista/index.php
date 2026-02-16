@@ -1,10 +1,11 @@
 <?php
-include_once "../../assest/config/validarUsuarioOpera.php";
+$rootPath = __DIR__ . "/../../";
+include_once $rootPath . "assest/config/validarUsuarioOpera.php";
 
 //LLAMADA ARCHIVOS NECESARIOS PARA LAS OPERACIONES
-include_once "../../assest/controlador/CONSULTA_ADO.php";
-include_once "../../assest/controlador/EMPRESA_ADO.php";
-include_once "../../assest/controlador/PLANTA_ADO.php";
+include_once $rootPath . "assest/controlador/CONSULTA_ADO.php";
+include_once $rootPath . "assest/controlador/EMPRESA_ADO.php";
+include_once $rootPath . "assest/controlador/PLANTA_ADO.php";
 
 
 //INICIALIZAR CONTROLADOR
@@ -26,14 +27,14 @@ if (!empty($EMPRESAS)) {
 $ARRAYLISTARPLANTA=$PLANTA_ADO->listarPlantaPropiaCBX();
 
 $ARRAYEXISTENCIAMP=$CONSULTA_ADO->existenciaDisponibleMpEst($TEMPORADAS, $ESPECIE);
-$TOTALEXISTENCIAMP=$ARRAYEXISTENCIAMP[0]["NETO"];
+$TOTALEXISTENCIAMP=isset($ARRAYEXISTENCIAMP[0]["NETO"]) ? $ARRAYEXISTENCIAMP[0]["NETO"] : 0;
 
 
 
 $ARRAYRECEPCIONMP=$CONSULTA_ADO->acumuladoRecepcionMpEst($TEMPORADAS, $ESPECIE);
 $ARRAYRECEPCIONBULKMP=$CONSULTA_ADO->acumuladoRecepcionMpBulkEst($TEMPORADAS, $ESPECIE);
-$TOTALRECECPCIOANDO=$ARRAYRECEPCIONMP[0]["NETO"];
-$TOTALRECECPCIOANDOBULK=$ARRAYRECEPCIONBULKMP[0]["NETO"];
+$TOTALRECECPCIOANDO=isset($ARRAYRECEPCIONMP[0]["NETO"]) ? $ARRAYRECEPCIONMP[0]["NETO"] : 0;
+$TOTALRECECPCIOANDOBULK=isset($ARRAYRECEPCIONBULKMP[0]["NETO"]) ? $ARRAYRECEPCIONBULKMP[0]["NETO"] : 0;
 
 
 
@@ -55,7 +56,7 @@ $TOTALPROCESADO=$ARRAYPROCESADOMP[0]["NETO"];
     <meta name="description" content="">
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
-        <?php include_once "../../assest/config/urlHead.php"; ?>
+        <?php include_once $rootPath . "assest/config/urlHead.php"; ?>
         <!- FUNCIONES BASES -!>
         <script type="text/javascript">
             //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -69,7 +70,7 @@ $TOTALPROCESADO=$ARRAYPROCESADOMP[0]["NETO"];
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA-!>
-            <?php include_once "../../assest/config/menuOpera.php"; ?>
+            <?php include_once $rootPath . "assest/config/menuOpera.php"; ?>
             <div class="content-wrapper">
                 <div class="container-full">                   
                     <section class="content">
@@ -183,10 +184,10 @@ $TOTALPROCESADO=$ARRAYPROCESADOMP[0]["NETO"];
                 </div>
             </div>    
             <!- LLAMADA ARCHIVO DEL DISEÑO DEL FOOTER Y MENU USUARIO -!>
-            <?php include_once "../../assest/config/footer.php"; ?>
-            <?php include_once "../../assest/config/menuExtraOpera.php"; ?>
+            <?php include_once $rootPath . "assest/config/footer.php"; ?>
+            <?php include_once $rootPath . "assest/config/menuExtraOpera.php"; ?>
     </div>
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS -!>
-        <?php include_once "../../assest/config/urlBase.php"; ?>
+        <?php include_once $rootPath . "assest/config/urlBase.php"; ?>
 </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
-include_once "../../assest/config/validarUsuarioExpo.php";
+$rootPath = __DIR__ . "/../../";
+include_once $rootPath . "assest/config/validarUsuarioExpo.php";
 
 //LLAMADA ARCHIVOS NECESARIOS PARA LAS OPERACIONES
 
@@ -27,9 +28,9 @@ include_once "../../assest/config/validarUsuarioExpo.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="">
     <meta name="author" content="">
-    <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
-        <?php include_once "../../assest/config/urlHead.php"; ?>
-        <!- FUNCIONES BASES -!>
+    <!-- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -->
+        <?php include_once $rootPath . "assest/config/urlHead.php"; ?>
+        <!-- FUNCIONES BASES -->
             <script type="text/javascript">
                 //REDIRECCIONAR A LA PAGINA SELECIONADA
                 function irPagina(url) {
@@ -42,8 +43,7 @@ include_once "../../assest/config/validarUsuarioExpo.php";
 </head>
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
-        <?php include_once "../../assest/config/menuExpo.php"; ?>
-        ?>
+        <?php include_once $rootPath . "assest/config/menuExpo.php"; ?>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <div class="container-full">
@@ -61,18 +61,18 @@ include_once "../../assest/config/validarUsuarioExpo.php";
                                 </nav>
                             </div>
                         </div>
-                        <?php include_once "../../assest/config/verIndicadorEconomico.php"; ?>
+                        <?php include_once $rootPath . "assest/config/verIndicadorEconomico.php"; ?>
                     </div>
                 </div>
                 <section class="content">
                 </section>
             </div>
         </div>
-        <!- LLAMADA ARCHIVO DEL DISEÑO DEL FOOTER Y MENU USUARIO -!>
-        <?php include_once "../../assest/config/footer.php"; ?>
-        <?php include_once "../../assest//config/menuExtraExpo.php"; ?>
+        <!-- LLAMADA ARCHIVO DEL DISEÑO DEL FOOTER Y MENU USUARIO -->
+        <?php include_once $rootPath . "assest/config/footer.php"; ?>
+        <?php include_once $rootPath . "assest/config/menuExtraExpo.php"; ?>
     </div>
-    <?php include_once "../../assest/config/urlBase.php"; ?>
+    <?php include_once $rootPath . "assest/config/urlBase.php"; ?>
 </body>
 
 </html>

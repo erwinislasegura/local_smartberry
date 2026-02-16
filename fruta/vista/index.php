@@ -1,10 +1,11 @@
 <?php
-include_once "../../assest/config/validarUsuarioFruta.php";
+$rootPath = __DIR__ . "/../../";
+include_once $rootPath . "assest/config/validarUsuarioFruta.php";
 
 
 
 //LLAMADA ARCHIVOS NECESARIOS PARA LAS OPERACIONES
-include_once "../../assest/controlador/CONSULTA_ADO.php";
+include_once $rootPath . "assest/controlador/CONSULTA_ADO.php";
 
 
 //INICIALIZAR CONTROLADOR

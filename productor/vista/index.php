@@ -1,12 +1,13 @@
 <?php
-include_once "../../assest/config/validarUsuarioOpera.php";
+$rootPath = __DIR__ . "/../../";
+include_once $rootPath . "assest/config/validarUsuarioOpera.php";
 
 //LLAMADA ARCHIVOS NECESARIOS PARA LAS OPERACIONES
-include_once "../../assest/controlador/CONSULTA_ADO.php";
-include_once "../../assest/controlador/EMPRESAPRODUCTOR_ADO.php";
-include_once "../../assest/controlador/RECEPCIONMP_ADO.php";
-include_once "../../assest/controlador/DRECEPCIONMP_ADO.php";
-include_once "../../assest/controlador/VESPECIES_ADO.php";
+include_once $rootPath . "assest/controlador/CONSULTA_ADO.php";
+include_once $rootPath . "assest/controlador/EMPRESAPRODUCTOR_ADO.php";
+include_once $rootPath . "assest/controlador/RECEPCIONMP_ADO.php";
+include_once $rootPath . "assest/controlador/DRECEPCIONMP_ADO.php";
+include_once $rootPath . "assest/controlador/VESPECIES_ADO.php";
 
 
 //INICIALIZAR CONTROLADOR
@@ -129,7 +130,7 @@ foreach ($VARIEDADES as $variedad) {
     <meta name="description" content="">
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
-        <?php include_once "../../assest/config/urlHead.php"; ?>
+        <?php include_once $rootPath . "assest/config/urlHead.php"; ?>
         <!- FUNCIONES BASES -!>
         <script type="text/javascript">
             //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -143,7 +144,7 @@ foreach ($VARIEDADES as $variedad) {
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA-!>
-            <?php include_once "../../assest/config/menuOpera.php"; ?>
+            <?php include_once $rootPath . "assest/config/menuOpera.php"; ?>
             <div class="content-wrapper">
                 <div class="container-full">                   
                     <section class="content">
@@ -374,11 +375,11 @@ foreach ($VARIEDADES as $variedad) {
                 </div>
             </div>    
             <!- LLAMADA ARCHIVO DEL DISEÑO DEL FOOTER Y MENU USUARIO -!>
-            <?php include_once "../../assest/config/footer.php"; ?>
-            <?php include_once "../../assest/config/menuExtraOpera.php"; ?>
+            <?php include_once $rootPath . "assest/config/footer.php"; ?>
+            <?php include_once $rootPath . "assest/config/menuExtraOpera.php"; ?>
     </div>
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS -!>
-        <?php include_once "../../assest/config/urlBase.php"; ?>
+        <?php include_once $rootPath . "assest/config/urlBase.php"; ?>
         <script type="text/javascript">
             const weekCategories = <?php echo json_encode($SEMANAS); ?>;
             const weekValues = <?php echo json_encode($SEMANASVALORES); ?>;
