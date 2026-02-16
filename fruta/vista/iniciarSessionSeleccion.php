@@ -23,10 +23,56 @@ $AUSUARIO_ADO = new AUSUARIO_ADO;
 $EMPRESA = $_SESSION["ID_EMPRESA"] ?? "";
 $PLANTA = $_SESSION["ID_PLANTA"] ?? "";
 $TEMPORADA = $_SESSION["ID_TEMPORADA"] ?? "";
+$alertScript = '';
 
 // Generar token CSRF si no existe
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Procesamiento del formulario (antes de renderizar HTML para evitar doble selección)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validar token CSRF
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $alertScript = '<script>
+          Swal.fire({
+            icon:"error",
+            title:"Error de seguridad",
+            text:"Token CSRF inválido. Recarga la página."
+          });
+        </script>';
+    } else {
+        // Validar y sanear entradas
+        $empresa = filter_input(INPUT_POST, 'EMPRESA', FILTER_VALIDATE_INT);
+        $planta = filter_input(INPUT_POST, 'PLANTA', FILTER_VALIDATE_INT);
+        $temporada = filter_input(INPUT_POST, 'TEMPORADA', FILTER_VALIDATE_INT);
+
+        if (!$empresa || !$planta || !$temporada) {
+            $alertScript = '<script>
+              Swal.fire({
+                icon:"warning",
+                title:"Campos requeridos",
+                text:"Debes seleccionar empresa, planta y temporada válidas"
+              });
+            </script>';
+        } else {
+            // Guardar en sesión
+            $_SESSION["ID_EMPRESA"] = $empresa;
+            $_SESSION["ID_PLANTA"] = $planta;
+            $_SESSION["ID_TEMPORADA"] = $temporada;
+
+            // Registrar acción
+            $AUSUARIO_ADO->agregarAusuario2(
+                'NULL',1,0,"".($_SESSION["NOMBRE_USUARIO"] ?? 'Usuario desconocido').", Selección de parámetros",
+                "usuario_usuario",$_SESSION["ID_USUARIO"] ?? 0,$_SESSION["ID_USUARIO"] ?? 0,
+                $empresa,$planta,$temporada
+            );
+
+            session_regenerate_id(true);
+            header('Location: index.php');
+            exit;
+        }
+    }
 }
 
 $ARRAYEMPRESA = $EMPRESA_ADO->listarEmpresaCBX();
@@ -136,62 +182,6 @@ function h($string) {
     setInterval(()=>{slides[i].classList.remove('active');i=(i+1)%slides.length;slides[i].classList.add('active')},5000);
   </script>
 
-<?php
-// Procesamiento del formulario
-if (isset($_POST['ENTRAR'])) {
-    // Validar token CSRF
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        echo '<script>
-          Swal.fire({
-            icon:"error",
-            title:"Error de seguridad",
-            text:"Token CSRF inválido. Recarga la página."
-          });
-        </script>';
-        exit;
-    }
-
-    // Validar y sanear entradas
-    $empresa = filter_input(INPUT_POST, 'EMPRESA', FILTER_VALIDATE_INT);
-    $planta = filter_input(INPUT_POST, 'PLANTA', FILTER_VALIDATE_INT);
-    $temporada = filter_input(INPUT_POST, 'TEMPORADA', FILTER_VALIDATE_INT);
-
-    if (!$empresa || !$planta || !$temporada) {
-        echo '<script>
-          Swal.fire({
-            icon:"warning",
-            title:"Campos requeridos",
-            text:"Debes seleccionar empresa, planta y temporada válidas"
-          });
-        </script>';
-        exit;
-    }
-
-    // Guardar en sesión
-    $_SESSION["ID_EMPRESA"] = $empresa;
-    $_SESSION["ID_PLANTA"] = $planta;
-    $_SESSION["ID_TEMPORADA"] = $temporada;
-
-    // Registrar acción (asegúrate que agregarAusuario2 use consultas preparadas)
-    $AUSUARIO_ADO->agregarAusuario2(
-        'NULL',1,0,"".($_SESSION["NOMBRE_USUARIO"] ?? 'Usuario desconocido').", Selección de parámetros",
-        "usuario_usuario",$_SESSION["ID_USUARIO"] ?? 0,$_SESSION["ID_USUARIO"] ?? 0,
-        $empresa,$planta,$temporada
-    );
-
-    // Regenerar ID de sesión para mayor seguridad
-    session_regenerate_id(true);
-
-    echo '<script>
-      Swal.fire({
-        icon:"success",
-        title:"Éxito",
-        text:"Parámetros seleccionados correctamente",
-        timer:2000,
-        showConfirmButton:false
-      }).then(()=>{location.href="index.php";});
-    </script>';
-}
-?>
+  <?= $alertScript ?>
 </body>
 </html>
