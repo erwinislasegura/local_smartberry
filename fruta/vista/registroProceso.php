@@ -198,6 +198,7 @@ $ARRAYMERCADOSPRODUCTOR = array();
 $ARRAYOPROCESO = "";
 $ARRAYPRODUCTOROP = array();
 $ARRAYVARIEDADOP = array();
+$ARRAYMERCADOSOP = array();
 
 $ARRAYEVERERECEPCIONID = "";
 $ARRAYVEREEXPORTACION = "";
@@ -263,6 +264,23 @@ if ($ARRAYRMERCADO) {
                 $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM] = array();
             }
             $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM][] = $LISTAMERCADOS[$IDMERCADORM];
+        }
+    }
+}
+
+if ($ARRAYOPROCESO) {
+    foreach ($ARRAYOPROCESO as $rop) {
+        $IDOPTMP = (int)$rop['ID_OPROCESO'];
+        $ARRAYMERCADOSOP[$IDOPTMP] = array();
+        $ARRAYMERCADOSOPDET = $OPROCESO_ADO->listarMercadosPorOp($IDOPTMP);
+        if ($ARRAYMERCADOSOPDET) {
+            foreach ($ARRAYMERCADOSOPDET as $rmd) {
+                $IDMERCADOOP = (int)$rmd['ID_MERCADO'];
+                if (isset($LISTAMERCADOS[$IDMERCADOOP])) {
+                    $ARRAYMERCADOSOP[$IDOPTMP][] = $LISTAMERCADOS[$IDMERCADOOP];
+                }
+            }
+            $ARRAYMERCADOSOP[$IDOPTMP] = array_values(array_unique($ARRAYMERCADOSOP[$IDOPTMP]));
         }
     }
 }
@@ -873,11 +891,12 @@ if ($OPROCESO != "") {
                                                     <?php foreach ($ARRAYOPROCESO as $r) : ?>
                                                         <?php if ($ARRAYOPROCESO) { ?>
                                                             <option value="<?php echo $r['ID_OPROCESO']; ?>" <?php if ($OPROCESO == $r['ID_OPROCESO']) { echo "selected"; } ?>>
-                                                                <?php echo $r['NUMERO_OPROCESO']; ?>
+                                                                OP <?php echo $r['NUMERO_OPROCESO']; ?>
                                                             </option>
                                                         <?php } ?>
                                                     <?php endforeach; ?>
                                                 </select>
+                                                <small id="op-mercados-texto" class="text-muted d-block mt-1"></small>
                                             </div>
                                         </div>
                                         <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12">
@@ -1694,6 +1713,31 @@ if ($OPROCESO != "") {
                 const porcentajeExportacion = document.getElementById('PEXPORTACIONEXPOEX');
 
                 var mercadosPorProductor = <?php echo json_encode($ARRAYMERCADOSPRODUCTOR); ?>;
+                var mercadosPorOp = <?php echo json_encode($ARRAYMERCADOSOP); ?>;
+
+                function actualizarMercadosOp() {
+                    var $op = $('#OPROCESO');
+                    var $opHidden = $('#OPROCESOE');
+                    var $opMercados = $('#op-mercados-texto');
+                    if (!$opMercados.length) {
+                        return;
+                    }
+                    var idOp = '';
+                    if ($op.length) {
+                        idOp = $op.val();
+                    }
+                    if ((!idOp || idOp === '') && $opHidden.length) {
+                        idOp = $opHidden.val();
+                    }
+
+                    if (!idOp || !mercadosPorOp[idOp] || mercadosPorOp[idOp].length === 0) {
+                        $opMercados.text('');
+                        return;
+                    }
+
+                    $opMercados.html('<strong>Mercados OP:</strong> ' + mercadosPorOp[idOp].join(', '));
+                }
+
 
                 function actualizarMercadosProductor() {
                     var $productor = $('#PRODUCTOR');
@@ -1731,7 +1775,12 @@ if ($OPROCESO != "") {
                     actualizarMercadosProductor();
                 });
 
+                $(document).on('change select2:select', '#OPROCESO', function() {
+                    actualizarMercadosOp();
+                });
+
                 actualizarMercadosProductor();
+                actualizarMercadosOp();
 
                 if (botonCerrar && formulario && porcentajeExportacion) {
                     botonCerrar.addEventListener('click', (event) => {
