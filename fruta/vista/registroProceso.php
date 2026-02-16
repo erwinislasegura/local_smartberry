@@ -517,6 +517,51 @@ if (isset($_POST)) {
                 text-decoration: none;
                 color: #fff;
             }
+
+            /* sistemRR: estilo visual compacto y redondeado */
+            #form_reg_dato .form-control,
+            #form_reg_dato .select2-container--default .select2-selection--single,
+            #form_reg_dato .select2-container--default .select2-selection--multiple {
+                border-radius: 14px !important;
+                min-height: 34px !important;
+                height: 34px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato textarea.form-control {
+                min-height: 68px !important;
+                height: auto !important;
+                border-radius: 14px !important;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .form-group {
+                margin-bottom: 10px;
+            }
+
+            #form_reg_dato label {
+                margin-bottom: 4px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .select2-container .select2-selection--single .select2-selection__rendered {
+                line-height: 32px !important;
+                padding-left: 12px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .select2-container .select2-selection--single .select2-selection__arrow {
+                height: 32px !important;
+            }
+
+            #form_reg_dato .btn {
+                border-radius: 14px !important;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                min-height: 34px;
+            }
         </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
