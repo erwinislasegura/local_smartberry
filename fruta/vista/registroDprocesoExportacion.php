@@ -279,12 +279,15 @@ if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato)) {
         $ARRAYESTANDARESOP = $OPROCESO_ADO->listarEstandarPorOp($IDOPROCESO);
         $ESTANDARESOP = array();
         foreach ($ARRAYESTANDARESOP as $reo) {
-            $ESTANDARESOP[] = (int)$reo['ID_ESTANDAR'];
+            $ESTANDARESOP[(int)$reo['ID_ESTANDAR']] = true;
         }
-        if (count($ESTANDARESOP) > 0) {
-            $ARRAYESTANDAR = array_values(array_filter($ARRAYESTANDAR, function ($re) use ($ESTANDARESOP) {
-                return in_array((int)$re['ID_ESTANDAR'], $ESTANDARESOP);
-            }));
+
+        $ARRAYESTANDAR = array_values(array_filter($ARRAYESTANDAR, function ($re) use ($ESTANDARESOP) {
+            return isset($ESTANDARESOP[(int)$re['ID_ESTANDAR']]);
+        }));
+
+        if ($ESTANDAR != '' && !isset($ESTANDARESOP[(int)$ESTANDAR])) {
+            $ESTANDAR = '';
         }
     }
 }
