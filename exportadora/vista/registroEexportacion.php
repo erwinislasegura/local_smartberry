@@ -8,8 +8,8 @@ include_once '../../assest/controlador/ESPECIES_ADO.php';
 include_once '../../assest/controlador/TETIQUETA_ADO.php';
 include_once '../../assest/controlador/TEMBALAJE_ADO.php';
 include_once '../../assest/controlador/ECOMERCIAL_ADO.php';
-
-
+include_once '../../assest/controlador/MERCADO_ADO.php';
+include_once '../../assest/controlador/REEXPORTACIONMERCADO_ADO.php';
 
 include_once '../../assest/controlador/EEXPORTACION_ADO.php';
 include_once '../../assest/modelo/EEXPORTACION.php';
@@ -22,6 +22,8 @@ $ESPECIES_ADO =  new ESPECIES_ADO();
 $TETIQUETA_ADO =  new TETIQUETA_ADO();
 $TEMBALAJE_ADO =  new TEMBALAJE_ADO();
 $ECOMERCIAL_ADO =  new ECOMERCIAL_ADO();
+$MERCADO_ADO =  new MERCADO_ADO();
+$REEXPORTACIONMERCADO_ADO =  new REEXPORTACIONMERCADO_ADO();
 
 $EEXPORTACION_ADO =  new EEXPORTACION_ADO();
 //INIICIALIZAR MODELO
@@ -54,6 +56,7 @@ $COLOR="";
 $VARIEDAD="";
 $ESTADO = "";
 $CONTADOR=0;
+$MERCADOS = array();
 
 
 
@@ -66,6 +69,7 @@ $ARRAYETIQUETA = "";
 $ARRAYTEMBALAJE = "";
 $ARRAYECOMERCIAL = "";
 $ARRAYMERCADO = "";
+$ARRAYREEXPORTACIONMERCADO = "";
 
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
@@ -74,8 +78,13 @@ $ARRAYESPECIES = $ESPECIES_ADO->listarEspeciesCBX();
 $ARRAYETIQUETA  = $TETIQUETA_ADO->listarEtiquetaPorEmpresaCBX($EMPRESAS);
 $ARRAYTEMBALAJE  = $TEMBALAJE_ADO->listarEmbalajePorEmpresaCBX($EMPRESAS);
 $ARRAYECOMERCIAL = $ECOMERCIAL_ADO->listarEcomercialPorEmpresaCBX($EMPRESAS);
+$ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
 include_once "../../assest/config/validarDatosUrl.php";
 include_once "../../assest/config/datosUrl.php";
+
+if (isset($_REQUEST['MERCADOS']) && is_array($_REQUEST['MERCADOS'])) {
+    $MERCADOS = $_REQUEST['MERCADOS'];
+}
 
 
 if (isset($_GET["id"])) {
@@ -135,6 +144,11 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TEMBALAJE = "" . $r['ID_TEMBALAJE'];
             $ECOMERCIAL = "" . $r['ID_ECOMERCIAL'];
         endforeach;
+
+        $ARRAYREEXPORTACIONMERCADO = $REEXPORTACIONMERCADO_ADO->buscarPorEstandar($IDOP);
+        foreach ($ARRAYREEXPORTACIONMERCADO as $r2) :
+            $MERCADOS[] = "" . $r2['ID_MERCADO'];
+        endforeach;
     }
     //1 = ACTIVAR
     if ($OP == "1") {
@@ -168,6 +182,11 @@ if (isset($id_dato) && isset($accion_dato)) {
             $ETIQUETA = "" . $r['ID_TETIQUETA'];
             $TEMBALAJE = "" . $r['ID_TEMBALAJE'];
             $ECOMERCIAL = "" . $r['ID_ECOMERCIAL'];
+        endforeach;
+
+        $ARRAYREEXPORTACIONMERCADO = $REEXPORTACIONMERCADO_ADO->buscarPorEstandar($IDOP);
+        foreach ($ARRAYREEXPORTACIONMERCADO as $r2) :
+            $MERCADOS[] = "" . $r2['ID_MERCADO'];
         endforeach;
 
     }
@@ -238,6 +257,11 @@ if (isset($id_dato) && isset($accion_dato)) {
             $ETIQUETA = "" . $r['ID_TETIQUETA'];
             $TEMBALAJE = "" . $r['ID_TEMBALAJE'];
             $ECOMERCIAL = "" . $r['ID_ECOMERCIAL'];
+        endforeach;
+
+        $ARRAYREEXPORTACIONMERCADO = $REEXPORTACIONMERCADO_ADO->buscarPorEstandar($IDOP);
+        foreach ($ARRAYREEXPORTACIONMERCADO as $r2) :
+            $MERCADOS[] = "" . $r2['ID_MERCADO'];
         endforeach;
     }
 }
@@ -326,6 +350,7 @@ if (isset($id_dato) && isset($accion_dato)) {
 
                     TEMBALAJE = document.getElementById("TEMBALAJE").selectedIndex;
                     ECOMERCIAL = document.getElementById("ECOMERCIAL").selectedIndex;
+                    MERCADOS = document.getElementById("MERCADOS").selectedOptions.length;
 
                     document.getElementById('val_codigo').innerHTML = "";
                     document.getElementById('val_nombre').innerHTML = "";
@@ -348,6 +373,7 @@ if (isset($id_dato) && isset($accion_dato)) {
 
                     document.getElementById('val_embalaje').innerHTML = "";
                     document.getElementById('val_ec').innerHTML = "";
+                    document.getElementById('val_mercados').innerHTML = "";
 
                     if (CODIGOESTANDAR == null || CODIGOESTANDAR == 0) {
                         document.form_reg_dato.CODIGOESTANDAR.focus();
@@ -488,6 +514,14 @@ if (isset($id_dato) && isset($accion_dato)) {
                         return false;
                     }
                     document.form_reg_dato.ECOMERCIAL.style.borderColor = "#4AF575";
+
+                    if (MERCADOS == null || MERCADOS == 0) {
+                        document.form_reg_dato.MERCADOS.focus();
+                        document.form_reg_dato.MERCADOS.style.borderColor = "#FF0000";
+                        document.getElementById('val_mercados').innerHTML = "NO HA SELECCIONADO  NINGUNA ALTERNATIVA";
+                        return false;
+                    }
+                    document.form_reg_dato.MERCADOS.style.borderColor = "#4AF575";
 
 
                 }
@@ -740,6 +774,23 @@ if (isset($id_dato) && isset($accion_dato)) {
                                                         <label id="val_ec" class="validacion"> </label>
                                                     </div>
                                                 </div>
+                                                <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                                    <div class="form-group">
+                                                        <label>Mercado</label>
+                                                        <select class="form-control select2" id="MERCADOS" name="MERCADOS[]" style="width: 100%;" multiple="multiple" <?php echo $DISABLED; ?>>
+                                                            <?php foreach ($ARRAYMERCADO as $r) : ?>
+                                                                <?php if ($ARRAYMERCADO) { ?>
+                                                                    <option value="<?php echo $r['ID_MERCADO']; ?>" <?php if (in_array($r['ID_MERCADO'], $MERCADOS)) { echo "selected"; } ?>>
+                                                                        <?php echo $r['NOMBRE_MERCADO']; ?>
+                                                                    </option>
+                                                                <?php } else { ?>
+                                                                    <option>No Hay Datos Registrados </option>
+                                                                <?php } ?>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <label id="val_mercados" class="validacion"> </label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <!-- /.box-body -->
@@ -989,7 +1040,8 @@ if (isset($id_dato) && isset($accion_dato)) {
                 $EEXPORTACION->__SET('ID_USUARIOI', $IDUSUARIOS);
                 $EEXPORTACION->__SET('ID_USUARIOM', $IDUSUARIOS);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
-                $EEXPORTACION_ADO->agregarEstandar($EEXPORTACION);
+                $IDESTANDAR = $EEXPORTACION_ADO->agregarEstandar($EEXPORTACION);
+                $REEXPORTACIONMERCADO_ADO->guardarMercadosPorEstandar($_REQUEST['EMPRESA'], $IDESTANDAR, isset($_REQUEST['MERCADOS']) ? $_REQUEST['MERCADOS'] : array(), $IDUSUARIOS);
 
                 $AUSUARIO_ADO->agregarAusuario2("NULL",3,1,"".$_SESSION["NOMBRE_USUARIO"].", Registro de Estandar Exportación.","estandar_eexportacion","NULL",$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'],'NULL',$_SESSION['ID_TEMPORADA'] );  
 
@@ -1036,6 +1088,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                 $EEXPORTACION->__SET('ID_ESTANDAR', $_REQUEST['ID']);
                 //LLAMADA AL METODO DE EDICION DEL CONTROLADOR
                 $EEXPORTACION_ADO->actualizarEstandar($EEXPORTACION);
+                $REEXPORTACIONMERCADO_ADO->guardarMercadosPorEstandar($EMPRESAS, $_REQUEST['ID'], isset($_REQUEST['MERCADOS']) ? $_REQUEST['MERCADOS'] : array(), $IDUSUARIOS);
 
                 $AUSUARIO_ADO->agregarAusuario2("NULL",3,2,"".$_SESSION["NOMBRE_USUARIO"].", Modificación de Estandar Exportación.","estandar_eexportacion", $_REQUEST['ID'],$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'],'NULL',$_SESSION['ID_TEMPORADA'] );     
 
