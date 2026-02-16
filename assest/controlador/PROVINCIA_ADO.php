@@ -109,7 +109,10 @@ class PROVINCIA_ADO {
                                                     pais.NOMBRE_PAIS  AS 'PAIS'
                                                 FROM   ubicacion_provincia provincia, ubicacion_region region, ubicacion_pais pais
                                                 WHERE provincia.ID_REGION = region.ID_REGION 
-                                                    AND region.ID_PAIS = pais.ID_PAIS;	");
+                                                    AND region.ID_PAIS = pais.ID_PAIS
+                                                    AND provincia.ESTADO_REGISTRO = 1
+                                                    AND region.ESTADO_REGISTRO = 1
+                                                    AND pais.ESTADO_REGISTRO = 1;	");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
