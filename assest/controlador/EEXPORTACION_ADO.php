@@ -209,6 +209,8 @@ class EEXPORTACION_ADO
                     )
 
                 );
+
+            return $this->conexion->lastInsertId();
         } catch (Exception $e) {
             die($e->getMessage());
         }
