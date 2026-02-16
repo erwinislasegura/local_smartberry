@@ -41,3 +41,29 @@ SET @sql_idx := IF(
 PREPARE stmt_idx FROM @sql_idx;
 EXECUTE stmt_idx;
 DEALLOCATE PREPARE stmt_idx;
+
+-- Relación de mercados por estándar de exportación
+CREATE TABLE IF NOT EXISTS `estandar_rexportacion_mercado` (
+  `ID_REEXPORTACIONMERCADO` bigint(20) NOT NULL AUTO_INCREMENT,
+  `NUMERO_REEXPORTACIONMERCADO` bigint(20) NOT NULL,
+  `ID_ESTANDAR` bigint(20) NOT NULL,
+  `ID_MERCADO` bigint(20) NOT NULL,
+  `ID_EMPRESA` bigint(20) NOT NULL,
+  `ESTADO_REGISTRO` int(11) NOT NULL DEFAULT 1,
+  `INGRESO` date NOT NULL,
+  `MODIFICACION` date NOT NULL,
+  `ID_USUARIOI` bigint(20) NOT NULL,
+  `ID_USUARIOM` bigint(20) NOT NULL,
+  PRIMARY KEY (`ID_REEXPORTACIONMERCADO`),
+  KEY `idx_rexportacion_mercado_estandar` (`ID_ESTANDAR`),
+  KEY `idx_rexportacion_mercado_mercado` (`ID_MERCADO`),
+  KEY `idx_rexportacion_mercado_empresa` (`ID_EMPRESA`),
+  KEY `idx_rexportacion_mercado_usuarioi` (`ID_USUARIOI`),
+  KEY `idx_rexportacion_mercado_usuariom` (`ID_USUARIOM`),
+  UNIQUE KEY `uk_rexportacion_mercado_estandar_mercado` (`ID_ESTANDAR`,`ID_MERCADO`),
+  CONSTRAINT `fk_rexportacion_mercado_estandar` FOREIGN KEY (`ID_ESTANDAR`) REFERENCES `estandar_eexportacion` (`ID_ESTANDAR`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_rexportacion_mercado_mercado` FOREIGN KEY (`ID_MERCADO`) REFERENCES `fruta_mercado` (`ID_MERCADO`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `fk_rexportacion_mercado_empresa` FOREIGN KEY (`ID_EMPRESA`) REFERENCES `principal_empresa` (`ID_EMPRESA`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `fk_rexportacion_mercado_usuarioi` FOREIGN KEY (`ID_USUARIOI`) REFERENCES `usuario_usuario` (`ID_USUARIO`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `fk_rexportacion_mercado_usuariom` FOREIGN KEY (`ID_USUARIOM`) REFERENCES `usuario_usuario` (`ID_USUARIO`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

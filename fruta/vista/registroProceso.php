@@ -8,6 +8,8 @@ include_once '../../assest/controlador/TPROCESO_ADO.php';
 include_once '../../assest/controlador/PRODUCTOR_ADO.php';
 include_once '../../assest/controlador/ESPECIES_ADO.php';
 include_once '../../assest/controlador/VESPECIES_ADO.php';
+include_once '../../assest/controlador/MERCADO_ADO.php';
+include_once '../../assest/controlador/RMERCADO_ADO.php';
 include_once '../../assest/controlador/PROCESO_ADO.php';
 include_once '../../assest/controlador/PCDESPACHOMP_ADO.php';
 include_once '../../assest/controlador/REPALETIZAJEEX_ADO.php';
@@ -76,6 +78,8 @@ $TPROCESO_ADO =  new TPROCESO_ADO();
 $PRODUCTOR_ADO =  new PRODUCTOR_ADO();
 $ESPECIES_ADO =  new ESPECIES_ADO();
 $VESPECIES_ADO =  new VESPECIES_ADO();
+$MERCADO_ADO =  new MERCADO_ADO();
+$RMERCADO_ADO =  new RMERCADO_ADO();
 $PROCESO_ADO =  new PROCESO_ADO();
 
 $TMANEJO_ADO =  new TMANEJO_ADO();
@@ -185,6 +189,9 @@ $ARRAYVESPECIES = "";
 $ARRAYTPROCESO = "";
 $ARRAYPRODUCTOR = "";
 $ARRAYVESPECIES = "";
+$ARRAYMERCADO = "";
+$ARRAYRMERCADO = "";
+$ARRAYMERCADOSPRODUCTOR = array();
 
 $ARRAYEVERERECEPCIONID = "";
 $ARRAYVEREEXPORTACION = "";
@@ -231,6 +238,27 @@ $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
 $ARRAYTPROCESO = $TPROCESO_ADO->listarTprocesoCBX();
 $ARRAYPRODUCTOR = $PRODUCTOR_ADO->listarProductorPorEmpresaCBX($EMPRESAS);
 $ARRAYVESPECIES = $VESPECIES_ADO->listarVespeciesPorEmpresaCBX($EMPRESAS);
+$ARRAYRMERCADO = $RMERCADO_ADO->listarRmercadoPorEmpresaCBX($EMPRESAS);
+$ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
+
+$LISTAMERCADOS = array();
+if ($ARRAYMERCADO) {
+    foreach ($ARRAYMERCADO as $r) {
+        $LISTAMERCADOS[$r['ID_MERCADO']] = $r['NOMBRE_MERCADO'];
+    }
+}
+if ($ARRAYRMERCADO) {
+    foreach ($ARRAYRMERCADO as $r) {
+        $IDPRODUCTORRM = $r['ID_PRODUCTOR'];
+        $IDMERCADORM = $r['ID_MERCADO'];
+        if (isset($LISTAMERCADOS[$IDMERCADORM])) {
+            if (!isset($ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM])) {
+                $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM] = array();
+            }
+            $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM][] = $LISTAMERCADOS[$IDMERCADORM];
+        }
+    }
+}
 $ARRAYFECHAACTUAL = $PROCESO_ADO->obtenerFecha();
 $FECHAPROCESO = $ARRAYFECHAACTUAL[0]['FECHA'];
 
@@ -517,6 +545,51 @@ if (isset($_POST)) {
                 text-decoration: none;
                 color: #fff;
             }
+
+            /* sistemRR: estilo visual compacto y redondeado */
+            #form_reg_dato .form-control,
+            #form_reg_dato .select2-container--default .select2-selection--single,
+            #form_reg_dato .select2-container--default .select2-selection--multiple {
+                border-radius: 14px !important;
+                min-height: 34px !important;
+                height: 34px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato textarea.form-control {
+                min-height: 68px !important;
+                height: auto !important;
+                border-radius: 14px !important;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .form-group {
+                margin-bottom: 10px;
+            }
+
+            #form_reg_dato label {
+                margin-bottom: 4px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .select2-container .select2-selection--single .select2-selection__rendered {
+                line-height: 32px !important;
+                padding-left: 12px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .select2-container .select2-selection--single .select2-selection__arrow {
+                height: 32px !important;
+            }
+
+            #form_reg_dato .btn {
+                border-radius: 14px !important;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                min-height: 34px;
+            }
         </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
@@ -771,6 +844,12 @@ if (isset($_POST)) {
                                                 </select>
 
                                                 <label id="val_productor" class="validacion"> </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12" id="mercados-productor-wrap" style="display:none;">
+                                            <div class="form-group mb-0">
+                                                <label class="mb-1">Mercados habilitados</label>
+                                                <div id="mercados-productor-lista"></div>
                                             </div>
                                         </div>
                                         <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12">
@@ -1559,6 +1638,46 @@ if (isset($_POST)) {
                 const campoCerrar = document.getElementById('CERRAR_ACTION');
                 const formulario = document.getElementById('form_reg_dato');
                 const porcentajeExportacion = document.getElementById('PEXPORTACIONEXPOEX');
+
+                var mercadosPorProductor = <?php echo json_encode($ARRAYMERCADOSPRODUCTOR); ?>;
+
+                function actualizarMercadosProductor() {
+                    var $productor = $('#PRODUCTOR');
+                    var $productorHidden = $('#PRODUCTORE');
+                    var $contenedor = $('#mercados-productor-wrap');
+                    var $lista = $('#mercados-productor-lista');
+
+                    if (!$contenedor.length || !$lista.length) {
+                        return;
+                    }
+
+                    var idProductor = '';
+                    if ($productor.length) {
+                        idProductor = $productor.val();
+                    }
+                    if ((!idProductor || idProductor === '') && $productorHidden.length) {
+                        idProductor = $productorHidden.val();
+                    }
+
+                    $lista.empty();
+
+                    if (!idProductor || !mercadosPorProductor[idProductor] || mercadosPorProductor[idProductor].length === 0) {
+                        $contenedor.hide();
+                        return;
+                    }
+
+                    mercadosPorProductor[idProductor].forEach(function(nombreMercado) {
+                        $lista.append('<span class="badge badge-info mr-1 mb-1">' + nombreMercado + '</span>');
+                    });
+
+                    $contenedor.show();
+                }
+
+                $(document).on('change select2:select', '#PRODUCTOR', function() {
+                    actualizarMercadosProductor();
+                });
+
+                actualizarMercadosProductor();
 
                 if (botonCerrar && formulario && porcentajeExportacion) {
                     botonCerrar.addEventListener('click', (event) => {
