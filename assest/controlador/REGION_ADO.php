@@ -108,7 +108,9 @@ class REGION_ADO {
                                                     region.NOMBRE_REGION  AS 'REGION',
                                                     pais.NOMBRE_PAIS  AS 'PAIS'
                                                 FROM    ubicacion_region region, ubicacion_pais pais
-                                                WHERE  region.ID_PAIS = pais.ID_PAIS;	");
+                                                WHERE  region.ID_PAIS = pais.ID_PAIS
+                                                    AND region.ESTADO_REGISTRO = 1
+                                                    AND pais.ESTADO_REGISTRO = 1;	");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
