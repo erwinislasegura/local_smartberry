@@ -69,7 +69,7 @@ if (isset($_GET["a"])) {
 //OBTENCION DE DATOS ENVIADOR A LA URL
 //PARA OPERACIONES DE EDICION Y VISUALIZACION
 //PREGUNTA SI LA URL VIENE  CON DATOS "parametro" y "parametro1"
-if (isset($id_dato) && isset($accion_dato)) {
+if ($id_dato !== "" && $accion_dato !== "") {
     //ALMACENAR DATOS DE VARIABLES DE LA URL
     $IDOP = $id_dato;
     $OP = $accion_dato;
@@ -612,7 +612,11 @@ if (isset($id_dato) && isset($accion_dato)) {
                 $ERECEPCION->__SET('TRATAMIENTO1',$_REQUEST['TRATAMIENTO1']);
                 $ERECEPCION->__SET('TRATAMIENTO2',$_REQUEST['TRATAMIENTO2']);
                 $ERECEPCION->__SET('ID_ESPECIES', $_REQUEST['ESPECIES']);
-                $ERECEPCION->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
+                $IDEMPRESAREGISTRO = $EMPRESAS;
+                if (isset($_REQUEST['EMPRESA']) && $_REQUEST['EMPRESA'] != "") {
+                    $IDEMPRESAREGISTRO = $_REQUEST['EMPRESA'];
+                }
+                $ERECEPCION->__SET('ID_EMPRESA', $IDEMPRESAREGISTRO);
                 $ERECEPCION->__SET('ID_PRODUCTO', $_REQUEST['PRODUCTO']);
                 $ERECEPCION->__SET('ID_USUARIOI', $IDUSUARIOS);
                 $ERECEPCION->__SET('ID_USUARIOM', $IDUSUARIOS);

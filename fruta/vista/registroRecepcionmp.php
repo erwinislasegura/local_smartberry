@@ -203,6 +203,27 @@ $ARRAYMERCADO = "";
 $ARRAYMERCADOSPRODUCTOR = array();
 
 
+function filtrarRegistrosHabilitados($arreglo)
+{
+    if (empty($arreglo) || !is_array($arreglo)) {
+        return array();
+    }
+
+    return array_values(array_filter($arreglo, function ($registro) {
+        if (!is_array($registro)) {
+            return false;
+        }
+
+        foreach ($registro as $columna => $valor) {
+            if (stripos($columna, 'ESTADO') !== false) {
+                return (string)$valor === '1';
+            }
+        }
+
+        return true;
+    }));
+}
+
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
 $ARRAYTRANSPORTE = $TRANSPORTE_ADO->listarTransportePorEmpresaCBX($EMPRESAS);
 $ARRAYCONDUCTOR = $CONDUCTOR_ADO->listarConductorPorEmpresaCBX($EMPRESAS);
@@ -211,6 +232,12 @@ $ARRAYPRODUCTOR = $PRODUCTOR_ADO->listarProductorPorEmpresaCBX($EMPRESAS);
 $ARRAYTDOCUMENTO = $TDOCUMENTO_ADO->listarTdocumentoPorEmpresaCBX($EMPRESAS);
 //$ARRAYBODEGA =  $BODEGA_ADO->listarBodegaPorEmpresaCBX($EMPRESAS);
 $ARRAYPLANTA2 = $PLANTA_ADO->listarPlantaExternaCBX();
+
+$ARRAYTRANSPORTEH = filtrarRegistrosHabilitados($ARRAYTRANSPORTE);
+$ARRAYCONDUCTORH = filtrarRegistrosHabilitados($ARRAYCONDUCTOR);
+$ARRAYPRODUCTORH = filtrarRegistrosHabilitados($ARRAYPRODUCTOR);
+$ARRAYTDOCUMENTOH = filtrarRegistrosHabilitados($ARRAYTDOCUMENTO);
+$ARRAYPLANTA2H = filtrarRegistrosHabilitados($ARRAYPLANTA2);
 $ARRAYRMERCADO = $RMERCADO_ADO->listarRmercadoPorEmpresaCBX($EMPRESAS);
 $ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
 
@@ -1385,8 +1412,8 @@ if (isset($_POST)) {
                                             <input type="hidden" class="form-control" placeholder="TRANSPORTE" id="TRANSPORTEE" name="TRANSPORTEE" value="<?php echo $TRANSPORTE; ?>" />
                                             <select class="form-control select2" id="TRANSPORTE" name="TRANSPORTE" style="width: 100%;" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?>>
                                                 <option></option>
-                                                <?php foreach ($ARRAYTRANSPORTE as $r) : ?>
-                                                    <?php if ($ARRAYTRANSPORTE) {    ?>
+                                                <?php foreach ($ARRAYTRANSPORTEH as $r) : ?>
+                                                    <?php if ($ARRAYTRANSPORTEH) {    ?>
                                                         <option value="<?php echo $r['ID_TRANSPORTE']; ?>" <?php if ($TRANSPORTE == $r['ID_TRANSPORTE']) {  echo "selected";   } ?>> <?php echo $r['NOMBRE_TRANSPORTE'] ?> </option>
                                                     <?php } else { ?>
                                                         <option>No Hay Datos Registrados </option>
@@ -1409,8 +1436,8 @@ if (isset($_POST)) {
                                                 <input type="hidden" class="form-control" placeholder="CONDUCTORE" id="CONDUCTORE" name="CONDUCTORE" value="<?php echo $CONDUCTOR; ?>" />
                                                 <select class="form-control select2" id="CONDUCTOR" name="CONDUCTOR" style="width: 100%;" value="<?php echo $CONDUCTOR; ?>" <?php echo $DISABLED; ?> <?php echo $DISABLEDFOLIO; ?>>
                                                     <option></option>
-                                                    <?php foreach ($ARRAYCONDUCTOR as $r) : ?>
-                                                        <?php if ($ARRAYCONDUCTOR) {    ?>
+                                                    <?php foreach ($ARRAYCONDUCTORH as $r) : ?>
+                                                        <?php if ($ARRAYCONDUCTORH) {    ?>
                                                             <option value="<?php echo $r['ID_CONDUCTOR']; ?>" <?php if ($CONDUCTOR == $r['ID_CONDUCTOR']) { echo "selected"; } ?>>
                                                                 <?php echo $r['NOMBRE_CONDUCTOR'] ?>
                                                             </option>
@@ -1472,8 +1499,8 @@ if (isset($_POST)) {
                                                     <input type="hidden" class="form-control" placeholder="Productor" id="PRODUCTORE" name="PRODUCTORE" value="<?php echo $PRODUCTOR; ?>" />
                                                     <select class="form-control select2" id="PRODUCTOR" name="PRODUCTOR" style="width: 100%;" <?php echo $DISABLEDFOLIO; ?> <?php if ($TRECEPCION == "1") { ?> onchange="this.form.submit()" <?php } ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>
                                                         <option></option>
-                                                        <?php foreach ($ARRAYPRODUCTOR as $r) : ?>
-                                                            <?php if ($ARRAYPRODUCTOR) {    ?>
+                                                        <?php foreach ($ARRAYPRODUCTORH as $r) : ?>
+                                                            <?php if ($ARRAYPRODUCTORH) {    ?>
                                                                 <option value="<?php echo $r['ID_PRODUCTOR']; ?>" <?php if ($PRODUCTOR == $r['ID_PRODUCTOR']) {  echo "selected";   } ?>>
                                                                     <?php echo $r['CSG_PRODUCTOR'] ?> : <?php echo $r['NOMBRE_PRODUCTOR'] ?>
                                                                 </option>
@@ -1506,8 +1533,8 @@ if (isset($_POST)) {
                                                     <input type="hidden" class="form-control" placeholder="PLANTA2E" id="PLANTA2E" name="PLANTA2E" value="<?php echo $PLANTA2; ?>" />
                                                     <select class="form-control select2" id="PLANTA2" name="PLANTA2" style="width: 100%;" onchange="this.form.submit()" value="<?php echo $PLANTA2; ?>" <?php echo $DISABLED; ?> <?php echo $DISABLEDFOLIO; ?>>
                                                         <option></option>
-                                                        <?php foreach ($ARRAYPLANTA2 as $r) : ?>
-                                                            <?php if ($ARRAYPLANTA2) {    ?>
+                                                        <?php foreach ($ARRAYPLANTA2H as $r) : ?>
+                                                            <?php if ($ARRAYPLANTA2H) {    ?>
                                                                 <option value="<?php echo $r['ID_PLANTA']; ?>" <?php if ($PLANTA2 == $r['ID_PLANTA']) {       echo "selected";   } ?>>
                                                                     <?php echo $r['NOMBRE_PLANTA'] ?>
                                                                 </option>
@@ -1544,8 +1571,8 @@ if (isset($_POST)) {
                                                     <input type="hidden" class="form-control" placeholder="Productor" id="PRODUCTORE" name="PRODUCTORE" value="<?php echo $PRODUCTOR; ?>" />
                                                     <select class="form-control select2" id="PRODUCTOR" name="PRODUCTOR" style="width: 100%;" <?php echo $DISABLEDFOLIO; ?> <?php if ($TRECEPCION == "3") { ?> onchange="this.form.submit()" <?php } ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>
                                                         <option></option>
-                                                        <?php foreach ($ARRAYPRODUCTOR as $r) : ?>
-                                                            <?php if ($ARRAYPRODUCTOR) {    ?>
+                                                        <?php foreach ($ARRAYPRODUCTORH as $r) : ?>
+                                                            <?php if ($ARRAYPRODUCTORH) {    ?>
                                                                 <option value="<?php echo $r['ID_PRODUCTOR']; ?>" <?php if ($PRODUCTOR == $r['ID_PRODUCTOR']) {  echo "selected";   } ?>>
                                                                     <?php echo $r['CSG_PRODUCTOR'] ?> : <?php echo $r['NOMBRE_PRODUCTOR'] ?>
                                                                 </option>
@@ -1597,8 +1624,8 @@ if (isset($_POST)) {
                                                 <input type="hidden" class="form-control" placeholder="TDOCUMENTOE" id="TDOCUMENTOE" name="TDOCUMENTOE" value="<?php echo $TDOCUMENTO; ?>" />
                                                 <select class="form-control select2" id="TDOCUMENTO" name="TDOCUMENTO" style="width: 100%;"  <?php echo $DISABLED2; ?> <?php echo $DISABLEDFOLIO; ?>>
                                                     <option></option>
-                                                    <?php foreach ($ARRAYTDOCUMENTO as $r) : ?>
-                                                        <?php if ($ARRAYTDOCUMENTO) {    ?>
+                                                    <?php foreach ($ARRAYTDOCUMENTOH as $r) : ?>
+                                                        <?php if ($ARRAYTDOCUMENTOH) {    ?>
                                                             <option value="<?php echo $r['ID_TDOCUMENTO']; ?>" <?php if ($TDOCUMENTO == $r['ID_TDOCUMENTO']) {    echo "selected";  } ?>> 
                                                                 <?php echo $r['NOMBRE_TDOCUMENTO'] ?> 
                                                             </option>
