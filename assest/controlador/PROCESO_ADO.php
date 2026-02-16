@@ -215,7 +215,7 @@ class PROCESO_ADO
                                                 ESTADO,  
                                                 ESTADO_REGISTRO
                                             ) VALUES
-	       	(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SYSDATE(),  SYSDATE(), 1, 1 );";
+	       	(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SYSDATE(),  SYSDATE(), 1, 1 );";
             $this->conexion->prepare($query)
                 ->execute(
                     array(
