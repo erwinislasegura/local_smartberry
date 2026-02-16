@@ -5,6 +5,8 @@ include_once '../../assest/controlador/MERCADO_ADO.php';
 include_once '../../assest/controlador/PRODUCTOR_ADO.php';
 include_once '../../assest/controlador/VESPECIES_ADO.php';
 include_once '../../assest/controlador/EEXPORTACION_ADO.php';
+include_once '../../assest/controlador/RMERCADO_ADO.php';
+include_once '../../assest/controlador/REEXPORTACIONMERCADO_ADO.php';
 include_once '../../assest/modelo/OPROCESO.php';
 
 $OPROCESO_ADO = new OPROCESO_ADO();
@@ -12,6 +14,8 @@ $MERCADO_ADO = new MERCADO_ADO();
 $PRODUCTOR_ADO = new PRODUCTOR_ADO();
 $VESPECIES_ADO = new VESPECIES_ADO();
 $EEXPORTACION_ADO = new EEXPORTACION_ADO();
+$RMERCADO_ADO = new RMERCADO_ADO();
+$REEXPORTACIONMERCADO_ADO = new REEXPORTACIONMERCADO_ADO();
 $OPROCESO = new OPROCESO();
 
 $IDOP = "";
@@ -32,6 +36,97 @@ $ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
 $ARRAYPRODUCTOR = $PRODUCTOR_ADO->listarProductorPorEmpresaCBX($EMPRESAS);
 $ARRAYVESPECIES = $VESPECIES_ADO->listarVespeciesPorEmpresaCBX($EMPRESAS);
 $ARRAYESTANDAR = $EEXPORTACION_ADO->listarEstandarPorEmpresaCBX($EMPRESAS);
+$ARRAYRMERCADO = $RMERCADO_ADO->listarRmercadoPorEmpresaCBX($EMPRESAS);
+
+$LISTAMERCADOS = array();
+$LISTAPRODUCTORES = array();
+$LISTAESTANDARES = array();
+$MERCADOSPRODUCTOR = array();
+$MERCADOSESTANDAR = array();
+
+if ($ARRAYMERCADO) {
+    foreach ($ARRAYMERCADO as $r) {
+        $LISTAMERCADOS[(int)$r['ID_MERCADO']] = $r['NOMBRE_MERCADO'];
+    }
+}
+if ($ARRAYPRODUCTOR) {
+    foreach ($ARRAYPRODUCTOR as $r) {
+        $LISTAPRODUCTORES[(int)$r['ID_PRODUCTOR']] = $r['CSG_PRODUCTOR'] . ' : ' . $r['NOMBRE_PRODUCTOR'];
+    }
+}
+if ($ARRAYESTANDAR) {
+    foreach ($ARRAYESTANDAR as $r) {
+        $IDEST = (int)$r['ID_ESTANDAR'];
+        $LISTAESTANDARES[$IDEST] = $r['CODIGO_ESTANDAR'] . ' : ' . $r['NOMBRE_ESTANDAR'];
+        $MERCADOSESTANDAR[$IDEST] = array();
+        $ARRAYREX = $REEXPORTACIONMERCADO_ADO->buscarPorEstandar($IDEST);
+        if ($ARRAYREX) {
+            foreach ($ARRAYREX as $rx) {
+                $MERCADOSESTANDAR[$IDEST][] = (int)$rx['ID_MERCADO'];
+            }
+            $MERCADOSESTANDAR[$IDEST] = array_values(array_unique($MERCADOSESTANDAR[$IDEST]));
+        }
+    }
+}
+if ($ARRAYRMERCADO) {
+    foreach ($ARRAYRMERCADO as $r) {
+        $IDPROD = (int)$r['ID_PRODUCTOR'];
+        $IDMER = (int)$r['ID_MERCADO'];
+        if (!isset($MERCADOSPRODUCTOR[$IDPROD])) {
+            $MERCADOSPRODUCTOR[$IDPROD] = array();
+        }
+        if (!in_array($IDMER, $MERCADOSPRODUCTOR[$IDPROD])) {
+            $MERCADOSPRODUCTOR[$IDPROD][] = $IDMER;
+        }
+    }
+}
+
+function validarCompatibilidadMercadosOP($MERCADOS_SEL, $PRODUCTORES_SEL, $ESTANDARES_SEL, $MERCADOSPRODUCTOR, $MERCADOSESTANDAR, $LISTAPRODUCTORES, $LISTAESTANDARES, $LISTAMERCADOS)
+{
+    $MERCADOS_SEL = array_values(array_unique(array_filter(array_map('intval', (array)$MERCADOS_SEL))));
+    $PRODUCTORES_SEL = array_values(array_unique(array_filter(array_map('intval', (array)$PRODUCTORES_SEL))));
+    $ESTANDARES_SEL = array_values(array_unique(array_filter(array_map('intval', (array)$ESTANDARES_SEL))));
+
+    if (count($MERCADOS_SEL) == 0) {
+        return array(true, "");
+    }
+
+    $ERRORES = array();
+
+    foreach ($PRODUCTORES_SEL as $IDPROD) {
+        $MERCADOSPROD = isset($MERCADOSPRODUCTOR[$IDPROD]) ? $MERCADOSPRODUCTOR[$IDPROD] : array();
+        $FALTAN = array_values(array_diff($MERCADOS_SEL, $MERCADOSPROD));
+        if (count($FALTAN) > 0) {
+            $NOMBRES = array();
+            foreach ($FALTAN as $idm) {
+                if (isset($LISTAMERCADOS[$idm])) {
+                    $NOMBRES[] = $LISTAMERCADOS[$idm];
+                }
+            }
+            $ERRORES[] = "Productor <strong>" . (isset($LISTAPRODUCTORES[$IDPROD]) ? $LISTAPRODUCTORES[$IDPROD] : $IDPROD) . "</strong> no habilitado en: " . implode(', ', $NOMBRES);
+        }
+    }
+
+    foreach ($ESTANDARES_SEL as $IDEST) {
+        $MERCEST = isset($MERCADOSESTANDAR[$IDEST]) ? $MERCADOSESTANDAR[$IDEST] : array();
+        $FALTAN = array_values(array_diff($MERCADOS_SEL, $MERCEST));
+        if (count($FALTAN) > 0) {
+            $NOMBRES = array();
+            foreach ($FALTAN as $idm) {
+                if (isset($LISTAMERCADOS[$idm])) {
+                    $NOMBRES[] = $LISTAMERCADOS[$idm];
+                }
+            }
+            $ERRORES[] = "Estándar <strong>" . (isset($LISTAESTANDARES[$IDEST]) ? $LISTAESTANDARES[$IDEST] : $IDEST) . "</strong> no habilitado en: " . implode(', ', $NOMBRES);
+        }
+    }
+
+    if (count($ERRORES) > 0) {
+        return array(false, implode("<br>", $ERRORES));
+    }
+
+    return array(true, "");
+}
 
 if (isset($_GET['id']) && isset($_GET['a'])) {
     $IDOP = (int)$_GET['id'];
@@ -61,87 +156,138 @@ if (isset($_GET['id']) && isset($_GET['a'])) {
             foreach ($ARRAYE as $r) {
                 $ESTANDARES_SEL[] = (int)$r['ID_ESTANDAR'];
             }
+            $ESTANDARES_SEL = array_values(array_unique($ESTANDARES_SEL));
         }
     }
 }
 
 if (isset($_POST['CREAR'])) {
-    $OPROCESO->__SET('NUMERO_OPROCESO', $_POST['NUMERO_OPROCESO']);
-    $OPROCESO->__SET('FECHA_TERMINO_ESTIMADA', $_POST['FECHA_TERMINO_ESTIMADA']);
-    $OPROCESO->__SET('CANTIDAD_CAJA', $_POST['CANTIDAD_CAJA']);
-    $OPROCESO->__SET('OBSERVACION_OPROCESO', $_POST['OBSERVACION_OPROCESO']);
-    $OPROCESO->__SET('ID_EMPRESA', $EMPRESAS);
-    $OPROCESO->__SET('ID_USUARIOI', $IDUSUARIOS);
-    $OPROCESO->__SET('ID_USUARIOM', $IDUSUARIOS);
+    $NUMERO_OPROCESO = $_POST['NUMERO_OPROCESO'];
+    $FECHA_TERMINO_ESTIMADA = $_POST['FECHA_TERMINO_ESTIMADA'];
+    $CANTIDAD_CAJA = $_POST['CANTIDAD_CAJA'];
+    $OBSERVACION_OPROCESO = $_POST['OBSERVACION_OPROCESO'];
 
-    $IDNUEVAOP = $OPROCESO_ADO->agregarOrdenProceso($OPROCESO);
+    $MERCADOS_SEL = isset($_POST['MERCADOS']) ? array_values(array_unique(array_map('intval', $_POST['MERCADOS']))) : array();
+    $PRODUCTORES_SEL = isset($_POST['PRODUCTORES']) ? array_values(array_unique(array_map('intval', $_POST['PRODUCTORES']))) : array();
+    $VARIEDADES_SEL = isset($_POST['VARIEDADES']) ? array_values(array_unique(array_map('intval', $_POST['VARIEDADES']))) : array();
+    $ESTANDARES_SEL = isset($_POST['ESTANDARES']) ? array_values(array_unique(array_map('intval', $_POST['ESTANDARES']))) : array();
 
-    if (isset($_POST['MERCADOS']) && is_array($_POST['MERCADOS'])) {
-        foreach ($_POST['MERCADOS'] as $idMercado) {
+    list($VALIDO, $DETALLEERROR) = validarCompatibilidadMercadosOP(
+        $MERCADOS_SEL,
+        $PRODUCTORES_SEL,
+        $ESTANDARES_SEL,
+        $MERCADOSPRODUCTOR,
+        $MERCADOSESTANDAR,
+        $LISTAPRODUCTORES,
+        $LISTAESTANDARES,
+        $LISTAMERCADOS
+    );
+
+    if (!$VALIDO) {
+        $MENSAJE = "Validación de mercados no cumplida:<br>" . $DETALLEERROR;
+        $TIPOMENSAJE = "warning";
+    } else {
+        $OPROCESO->__SET('NUMERO_OPROCESO', $NUMERO_OPROCESO);
+        $OPROCESO->__SET('FECHA_TERMINO_ESTIMADA', $FECHA_TERMINO_ESTIMADA);
+        $OPROCESO->__SET('CANTIDAD_CAJA', $CANTIDAD_CAJA);
+        $OPROCESO->__SET('OBSERVACION_OPROCESO', $OBSERVACION_OPROCESO);
+        $OPROCESO->__SET('ID_EMPRESA', $EMPRESAS);
+        $OPROCESO->__SET('ID_USUARIOI', $IDUSUARIOS);
+        $OPROCESO->__SET('ID_USUARIOM', $IDUSUARIOS);
+
+        $IDNUEVAOP = $OPROCESO_ADO->agregarOrdenProceso($OPROCESO);
+
+        foreach ($MERCADOS_SEL as $idMercado) {
             if ((int)$idMercado > 0) {
                 $OPROCESO_ADO->agregarMercado($IDNUEVAOP, (int)$idMercado);
             }
         }
-    }
 
-    if (isset($_POST['PRODUCTORES']) && is_array($_POST['PRODUCTORES']) && isset($_POST['VARIEDADES']) && is_array($_POST['VARIEDADES'])) {
-        foreach ($_POST['PRODUCTORES'] as $idProductor) {
-            foreach ($_POST['VARIEDADES'] as $idVariedad) {
+        foreach ($PRODUCTORES_SEL as $idProductor) {
+            foreach ($VARIEDADES_SEL as $idVariedad) {
                 if ((int)$idProductor > 0 && (int)$idVariedad > 0) {
                     $OPROCESO_ADO->agregarProductorVariedad($IDNUEVAOP, (int)$idProductor, (int)$idVariedad);
                 }
             }
         }
-    }
 
-    if (isset($_POST['ESTANDARES']) && is_array($_POST['ESTANDARES'])) {
-        foreach ($_POST['ESTANDARES'] as $idEstandar) {
+        foreach ($ESTANDARES_SEL as $idEstandar) {
             if ((int)$idEstandar > 0) {
                 $OPROCESO_ADO->agregarEstandar($IDNUEVAOP, (int)$idEstandar);
             }
         }
-    }
 
-    $MENSAJE = "OP creada correctamente";
-    $TIPOMENSAJE = "success";
+        $MENSAJE = "OP creada correctamente";
+        $TIPOMENSAJE = "success";
+
+        $NUMERO_OPROCESO = "";
+        $FECHA_TERMINO_ESTIMADA = "";
+        $CANTIDAD_CAJA = "";
+        $OBSERVACION_OPROCESO = "";
+        $MERCADOS_SEL = array();
+        $PRODUCTORES_SEL = array();
+        $VARIEDADES_SEL = array();
+        $ESTANDARES_SEL = array();
+    }
 }
 
 if (isset($_POST['GUARDAR'])) {
     $IDOPPOST = (int)$_POST['ID_OPROCESO'];
-    if ($IDOPPOST > 0) {
+    $IDOP = $IDOPPOST;
+    $ACCION = 'editar';
+
+    $NUMERO_OPROCESO = $_POST['NUMERO_OPROCESO'];
+    $FECHA_TERMINO_ESTIMADA = $_POST['FECHA_TERMINO_ESTIMADA'];
+    $CANTIDAD_CAJA = $_POST['CANTIDAD_CAJA'];
+    $OBSERVACION_OPROCESO = $_POST['OBSERVACION_OPROCESO'];
+
+    $MERCADOS_SEL = isset($_POST['MERCADOS']) ? array_values(array_unique(array_map('intval', $_POST['MERCADOS']))) : array();
+    $PRODUCTORES_SEL = isset($_POST['PRODUCTORES']) ? array_values(array_unique(array_map('intval', $_POST['PRODUCTORES']))) : array();
+    $VARIEDADES_SEL = isset($_POST['VARIEDADES']) ? array_values(array_unique(array_map('intval', $_POST['VARIEDADES']))) : array();
+    $ESTANDARES_SEL = isset($_POST['ESTANDARES']) ? array_values(array_unique(array_map('intval', $_POST['ESTANDARES']))) : array();
+
+    list($VALIDO, $DETALLEERROR) = validarCompatibilidadMercadosOP(
+        $MERCADOS_SEL,
+        $PRODUCTORES_SEL,
+        $ESTANDARES_SEL,
+        $MERCADOSPRODUCTOR,
+        $MERCADOSESTANDAR,
+        $LISTAPRODUCTORES,
+        $LISTAESTANDARES,
+        $LISTAMERCADOS
+    );
+
+    if (!$VALIDO) {
+        $MENSAJE = "Validación de mercados no cumplida:<br>" . $DETALLEERROR;
+        $TIPOMENSAJE = "warning";
+    } else if ($IDOPPOST > 0) {
         $OPROCESO->__SET('ID_OPROCESO', $IDOPPOST);
-        $OPROCESO->__SET('NUMERO_OPROCESO', $_POST['NUMERO_OPROCESO']);
-        $OPROCESO->__SET('FECHA_TERMINO_ESTIMADA', $_POST['FECHA_TERMINO_ESTIMADA']);
-        $OPROCESO->__SET('CANTIDAD_CAJA', $_POST['CANTIDAD_CAJA']);
-        $OPROCESO->__SET('OBSERVACION_OPROCESO', $_POST['OBSERVACION_OPROCESO']);
+        $OPROCESO->__SET('NUMERO_OPROCESO', $NUMERO_OPROCESO);
+        $OPROCESO->__SET('FECHA_TERMINO_ESTIMADA', $FECHA_TERMINO_ESTIMADA);
+        $OPROCESO->__SET('CANTIDAD_CAJA', $CANTIDAD_CAJA);
+        $OPROCESO->__SET('OBSERVACION_OPROCESO', $OBSERVACION_OPROCESO);
         $OPROCESO->__SET('ID_USUARIOM', $IDUSUARIOS);
 
         $OPROCESO_ADO->actualizarOrdenProceso($OPROCESO);
         $OPROCESO_ADO->limpiarDetalleOrdenProceso($IDOPPOST);
 
-        if (isset($_POST['MERCADOS']) && is_array($_POST['MERCADOS'])) {
-            foreach ($_POST['MERCADOS'] as $idMercado) {
-                if ((int)$idMercado > 0) {
-                    $OPROCESO_ADO->agregarMercado($IDOPPOST, (int)$idMercado);
+        foreach ($MERCADOS_SEL as $idMercado) {
+            if ((int)$idMercado > 0) {
+                $OPROCESO_ADO->agregarMercado($IDOPPOST, (int)$idMercado);
+            }
+        }
+
+        foreach ($PRODUCTORES_SEL as $idProductor) {
+            foreach ($VARIEDADES_SEL as $idVariedad) {
+                if ((int)$idProductor > 0 && (int)$idVariedad > 0) {
+                    $OPROCESO_ADO->agregarProductorVariedad($IDOPPOST, (int)$idProductor, (int)$idVariedad);
                 }
             }
         }
 
-        if (isset($_POST['PRODUCTORES']) && is_array($_POST['PRODUCTORES']) && isset($_POST['VARIEDADES']) && is_array($_POST['VARIEDADES'])) {
-            foreach ($_POST['PRODUCTORES'] as $idProductor) {
-                foreach ($_POST['VARIEDADES'] as $idVariedad) {
-                    if ((int)$idProductor > 0 && (int)$idVariedad > 0) {
-                        $OPROCESO_ADO->agregarProductorVariedad($IDOPPOST, (int)$idProductor, (int)$idVariedad);
-                    }
-                }
-            }
-        }
-
-        if (isset($_POST['ESTANDARES']) && is_array($_POST['ESTANDARES'])) {
-            foreach ($_POST['ESTANDARES'] as $idEstandar) {
-                if ((int)$idEstandar > 0) {
-                    $OPROCESO_ADO->agregarEstandar($IDOPPOST, (int)$idEstandar);
-                }
+        foreach ($ESTANDARES_SEL as $idEstandar) {
+            if ((int)$idEstandar > 0) {
+                $OPROCESO_ADO->agregarEstandar($IDOPPOST, (int)$idEstandar);
             }
         }
 
@@ -149,6 +295,14 @@ if (isset($_POST['GUARDAR'])) {
         $TIPOMENSAJE = "success";
         $ACCION = "";
         $IDOP = "";
+        $NUMERO_OPROCESO = "";
+        $FECHA_TERMINO_ESTIMADA = "";
+        $CANTIDAD_CAJA = "";
+        $OBSERVACION_OPROCESO = "";
+        $MERCADOS_SEL = array();
+        $PRODUCTORES_SEL = array();
+        $VARIEDADES_SEL = array();
+        $ESTANDARES_SEL = array();
     }
 }
 
@@ -329,7 +483,7 @@ $ARRAYOP = $OPROCESO_ADO->listarOrdenProcesoPorEmpresa($EMPRESAS);
     Swal.fire({
         icon: '<?php echo $TIPOMENSAJE; ?>',
         title: 'Ordenes de Proceso',
-        text: '<?php echo $MENSAJE; ?>',
+        html: '<?php echo $MENSAJE; ?>',
         confirmButtonText: 'Entendido'
     });
 </script>
