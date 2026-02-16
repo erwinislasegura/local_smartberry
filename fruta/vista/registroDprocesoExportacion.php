@@ -12,6 +12,9 @@ include_once '../../assest/controlador/TMANEJO_ADO.php';
 include_once '../../assest/controlador/PROCESO_ADO.php';
 include_once '../../assest/controlador/TCATEGORIA_ADO.php';
 include_once '../../assest/controlador/ICARGA_ADO.php';
+include_once '../../assest/controlador/MERCADO_ADO.php';
+include_once '../../assest/controlador/RMERCADO_ADO.php';
+include_once '../../assest/controlador/REEXPORTACIONMERCADO_ADO.php';
 
 include_once '../../assest/controlador/DPINDUSTRIAL_ADO.php';
 include_once '../../assest/controlador/DPEXPORTACION_ADO.php';
@@ -33,6 +36,9 @@ $TMANEJO_ADO =  new TMANEJO_ADO();
 $PROCESO_ADO =  new PROCESO_ADO();
 $TCATEGORIA_ADO =  new TCATEGORIA_ADO();
 $ICARGA_ADO =  new ICARGA_ADO();
+$MERCADO_ADO =  new MERCADO_ADO();
+$RMERCADO_ADO =  new RMERCADO_ADO();
+$REEXPORTACIONMERCADO_ADO =  new REEXPORTACIONMERCADO_ADO();
 
 $DPINDUSTRIAL_ADO =  new DPINDUSTRIAL_ADO();
 $DPEXPORTACION_ADO =  new DPEXPORTACION_ADO();
@@ -110,6 +116,7 @@ $DISABLED2 = "";
 $DISABLEDSTYLE2 = "";
 $MENSAJE = "";
 $MENSAJEELIMINAR = "";
+$MENSAJEMERCADOS = "";
 
 
 $IDOP = "";
@@ -135,6 +142,12 @@ $ARRAYPROCESO = "";
 
 $ARRAYVERFOLIOPOEXPO = "";
 $ARRAYFECHAACTUAL = "";
+$ARRAYMERCADO = "";
+$ARRAYRMERCADO = "";
+$ARRAYMERCADOSPRODUCTOR = array();
+$ARRAYMERCADOSESTANDAR = array();
+$LISTAMERCADOS = array();
+$MERCADOSNOPERMITIDOS = array();
 
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
@@ -144,6 +157,45 @@ $ARRAYTCALIBRE = $TCALIBRE_ADO->listarCalibrePorEmpresaCBX($EMPRESAS);
 $ARRAYTCATEGORIA=$TCATEGORIA_ADO->listarTcategoriaPorEmpresaCBX($EMPRESAS);
 $ARRAYTMANEJO = $TMANEJO_ADO->listarTmanejoCBX();
 $ARRAYICARGA = $ICARGA_ADO->listarIcargaEmpresaTemporadaCBX($EMPRESAS,$TEMPORADAS);
+$ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
+$ARRAYRMERCADO = $RMERCADO_ADO->listarRmercadoPorEmpresaCBX($EMPRESAS);
+
+if ($ARRAYMERCADO) {
+    foreach ($ARRAYMERCADO as $r) {
+        $LISTAMERCADOS[$r['ID_MERCADO']] = $r['NOMBRE_MERCADO'];
+    }
+}
+
+if ($ARRAYRMERCADO) {
+    foreach ($ARRAYRMERCADO as $r) {
+        $IDPRODUCTORRM = (int)$r['ID_PRODUCTOR'];
+        $IDMERCADORM = (int)$r['ID_MERCADO'];
+
+        if (!isset($ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM])) {
+            $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM] = array();
+        }
+        if ($IDMERCADORM > 0 && !in_array($IDMERCADORM, $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM])) {
+            $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM][] = $IDMERCADORM;
+        }
+    }
+}
+
+if ($ARRAYESTANDAR) {
+    foreach ($ARRAYESTANDAR as $r) {
+        $IDESTANDARLISTA = (int)$r['ID_ESTANDAR'];
+        $ARRAYREXESTANDAR = $REEXPORTACIONMERCADO_ADO->buscarPorEstandar($IDESTANDARLISTA);
+        $ARRAYMERCADOSESTANDAR[$IDESTANDARLISTA] = array();
+
+        if ($ARRAYREXESTANDAR) {
+            foreach ($ARRAYREXESTANDAR as $r2) {
+                $IDMERCADOREX = (int)$r2['ID_MERCADO'];
+                if ($IDMERCADOREX > 0 && !in_array($IDMERCADOREX, $ARRAYMERCADOSESTANDAR[$IDESTANDARLISTA])) {
+                    $ARRAYMERCADOSESTANDAR[$IDESTANDARLISTA][] = $IDMERCADOREX;
+                }
+            }
+        }
+    }
+}
 
 $ARRAYFECHAACTUAL = $DPEXPORTACION_ADO->obtenerFecha();
 $FECHAEMBALADO = $ARRAYFECHAACTUAL[0]['FECHA'];
@@ -502,6 +554,26 @@ if ($_POST) {
 }
 ?>
 
+<?php
+if ((int)$PRODUCTOR > 0 && (int)$ESTANDAR > 0) {
+    $MERCADOSPRODUCTORACTUAL = isset($ARRAYMERCADOSPRODUCTOR[(int)$PRODUCTOR]) ? $ARRAYMERCADOSPRODUCTOR[(int)$PRODUCTOR] : array();
+    $MERCADOSESTANDARACTUAL = isset($ARRAYMERCADOSESTANDAR[(int)$ESTANDAR]) ? $ARRAYMERCADOSESTANDAR[(int)$ESTANDAR] : array();
+    $MERCADOSNOPERMITIDOS = array_values(array_diff($MERCADOSESTANDARACTUAL, $MERCADOSPRODUCTORACTUAL));
+
+    if (count($MERCADOSNOPERMITIDOS) > 0) {
+        $NOMBRESMERCADOSNOPERMITIDOS = array();
+        foreach ($MERCADOSNOPERMITIDOS as $IDMERCADONP) {
+            if (isset($LISTAMERCADOS[$IDMERCADONP])) {
+                $NOMBRESMERCADOSNOPERMITIDOS[] = $LISTAMERCADOS[$IDMERCADONP];
+            }
+        }
+        if (count($NOMBRESMERCADOSNOPERMITIDOS) > 0) {
+            $MENSAJEMERCADOS = "No se puede embalar en este estándar. Mercados no permitidos para el productor: " . implode(", ", $NOMBRESMERCADOSNOPERMITIDOS) . ".";
+        }
+    }
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -514,8 +586,76 @@ if ($_POST) {
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
+        <style>
+            .sistemRR .form-control,
+            .sistemRR .select2-container--default .select2-selection--single,
+            .sistemRR .select2-container--default .select2-selection--multiple {
+                border-radius: 14px !important;
+                min-height: 34px !important;
+                height: 34px;
+                font-size: 12px;
+            }
+            .sistemRR .form-group { margin-bottom: 10px; }
+            .sistemRR label { margin-bottom: 4px; font-size: 12px; }
+            .sistemRR .select2-container .select2-selection--single .select2-selection__rendered { line-height: 32px !important; padding-left: 12px; font-size: 12px; }
+            .sistemRR .select2-container .select2-selection--single .select2-selection__arrow { height: 32px !important; }
+            .sistemRR .btn { border-radius: 14px !important; min-height: 34px; }
+            .alert-mercados-minimal { background: #fff3cd; border: 1px solid #ffe08a; color: #7c5a00; border-radius: 10px; padding: 8px 10px; font-size: 12px; line-height: 1.35; margin-top: 8px; }
+        </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
+                var mercadosPorProductor = <?php echo json_encode($ARRAYMERCADOSPRODUCTOR); ?>;
+                var mercadosPorEstandar = <?php echo json_encode($ARRAYMERCADOSESTANDAR); ?>;
+                var listaMercados = <?php echo json_encode($LISTAMERCADOS); ?>;
+
+                function obtenerMercadosNoPermitidos() {
+                    var productor = document.getElementById("PRODUCTOR");
+                    var estandar = document.getElementById("ESTANDAR");
+                    var idProductor = productor ? parseInt(productor.value || 0, 10) : 0;
+                    var idEstandar = estandar ? parseInt(estandar.value || 0, 10) : 0;
+                    if (!idProductor || !idEstandar) {
+                        return [];
+                    }
+                    var mercadosProductor = mercadosPorProductor[idProductor] || [];
+                    var mercadosEstandar = mercadosPorEstandar[idEstandar] || [];
+                    return mercadosEstandar.filter(function(idMercado) {
+                        return mercadosProductor.indexOf(idMercado) === -1;
+                    });
+                }
+
+                function mostrarAvisoMercados() {
+                    var aviso = document.getElementById("aviso_mercados_estandar");
+                    if (!aviso) {
+                        return [];
+                    }
+                    var mercadosNoPermitidos = obtenerMercadosNoPermitidos();
+                    if (mercadosNoPermitidos.length === 0) {
+                        aviso.style.display = "none";
+                        aviso.innerHTML = "";
+                        return [];
+                    }
+                    var nombres = mercadosNoPermitidos.map(function(idMercado) {
+                        return listaMercados[idMercado] || ("Mercado " + idMercado);
+                    });
+                    aviso.style.display = "block";
+                    aviso.innerHTML = "<strong>No se puede embalar en este estándar.</strong><br>Mercados no permitidos: " + nombres.join(", ");
+                    return nombres;
+                }
+
+                function validarMercadosEstandar() {
+                    var nombres = mostrarAvisoMercados();
+                    if (!nombres || nombres.length === 0) {
+                        return true;
+                    }
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Acción no permitida",
+                        html: "No se puede embalar en este estándar.<br><strong>Mercados no permitidos:</strong> " + nombres.join(", "),
+                        confirmButtonText: "Entendido"
+                    });
+                    return false;
+                }
+
                 function neto() {
 
                     var repuesta;
@@ -577,8 +717,11 @@ if ($_POST) {
                     EFOLIO = document.getElementById("EFOLIO").selectedIndex;
 
                     CATEGORIAESTANDAR = document.getElementById("CATEGORIAESTANDAR").value;
-                    REFERENCIAESTANDAR = document.getElementById("REFERENCIAESTANDAR").value;                   
-                     
+                    REFERENCIAESTANDAR = document.getElementById("REFERENCIAESTANDAR").value;
+
+                    if (!validarMercadosEstandar()) {
+                        return false;
+                    }
 
                     document.getElementById('val_folio').innerHTML = "";
                     document.getElementById('val_fechaembalado').innerHTML = "";
@@ -717,12 +860,19 @@ if ($_POST) {
                 function irPagina(url) {
                     location.href = "" + url;
                 }
+
+                document.addEventListener("DOMContentLoaded", function() {
+                    mostrarAvisoMercados();
+                    $(document).on("change select2:select", "#ESTANDAR", function() {
+                        mostrarAvisoMercados();
+                    });
+                });
                
             </script>
 
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA-!>
             <?php include_once "../../assest/config/menuFruta.php"; ?>
@@ -835,6 +985,9 @@ if ($_POST) {
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <label id="val_estandar" class="validacion"> </label>
+                                                <div id="aviso_mercados_estandar" class="alert-mercados-minimal" style="display:<?php echo ($MENSAJEMERCADOS != "") ? "block" : "none"; ?>;">
+                                                    <?php echo $MENSAJEMERCADOS; ?>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-4 col-sm-6 col-6 col-xs-6 ">
@@ -1044,6 +1197,18 @@ if ($_POST) {
             //OPERACIONES
             //OPERACION DE REGISTRO DE FILA
             if (isset($_REQUEST['CREAR'])) {
+                $MERCADOSPRODUCTORFORM = isset($ARRAYMERCADOSPRODUCTOR[(int)$_REQUEST['PRODUCTOR']]) ? $ARRAYMERCADOSPRODUCTOR[(int)$_REQUEST['PRODUCTOR']] : array();
+                $MERCADOSESTANDARFORM = isset($ARRAYMERCADOSESTANDAR[(int)$_REQUEST['ESTANDAR']]) ? $ARRAYMERCADOSESTANDAR[(int)$_REQUEST['ESTANDAR']] : array();
+                $MERCADOSNOPERMITIDOSFORM = array_values(array_diff($MERCADOSESTANDARFORM, $MERCADOSPRODUCTORFORM));
+                if (count($MERCADOSNOPERMITIDOSFORM) > 0) {
+                    $NOMBRESMERCADOSNOPERMITIDOS = array();
+                    foreach ($MERCADOSNOPERMITIDOSFORM as $IDMERCADONP) {
+                        if (isset($LISTAMERCADOS[$IDMERCADONP])) {
+                            $NOMBRESMERCADOSNOPERMITIDOS[] = $LISTAMERCADOS[$IDMERCADONP];
+                        }
+                    }
+                    echo '<script>Swal.fire({icon:"warning",title:"Acción no permitida",html:"No se puede embalar en este estándar.<br><strong>Mercados no permitidos:</strong> '.implode(', ', $NOMBRESMERCADOSNOPERMITIDOS).'",confirmButtonText:"Entendido"});</script>';
+                } else {
                 $ARRAYVERFOLIO = $FOLIO_ADO->verFolioPorEmpresaPlantaTemporadaTexportacion($_REQUEST['EMPRESA'], $_REQUEST['PLANTA'], $_REQUEST['TEMPORADA']);
                 $FOLIO = $ARRAYVERFOLIO[0]['ID_FOLIO'];
                 if (isset($_REQUEST['FOLIOMANUAL'])) {
@@ -1210,7 +1375,21 @@ if ($_POST) {
                     })
                 </script>';
             }
+                }
             if (isset($_REQUEST['EDITAR'])) {
+
+                $MERCADOSPRODUCTORFORM = isset($ARRAYMERCADOSPRODUCTOR[(int)$_REQUEST['PRODUCTOR']]) ? $ARRAYMERCADOSPRODUCTOR[(int)$_REQUEST['PRODUCTOR']] : array();
+                $MERCADOSESTANDARFORM = isset($ARRAYMERCADOSESTANDAR[(int)$_REQUEST['ESTANDAR']]) ? $ARRAYMERCADOSESTANDAR[(int)$_REQUEST['ESTANDAR']] : array();
+                $MERCADOSNOPERMITIDOSFORM = array_values(array_diff($MERCADOSESTANDARFORM, $MERCADOSPRODUCTORFORM));
+                if (count($MERCADOSNOPERMITIDOSFORM) > 0) {
+                    $NOMBRESMERCADOSNOPERMITIDOS = array();
+                    foreach ($MERCADOSNOPERMITIDOSFORM as $IDMERCADONP) {
+                        if (isset($LISTAMERCADOS[$IDMERCADONP])) {
+                            $NOMBRESMERCADOSNOPERMITIDOS[] = $LISTAMERCADOS[$IDMERCADONP];
+                        }
+                    }
+                    echo '<script>Swal.fire({icon:"warning",title:"Acción no permitida",html:"No se puede embalar en este estándar.<br><strong>Mercados no permitidos:</strong> '.implode(', ', $NOMBRESMERCADOSNOPERMITIDOS).'",confirmButtonText:"Entendido"});</script>';
+                } else {
 
                 $ARRAYVERESTANDAR = $EEXPORTACION_ADO->verEstandar($_REQUEST['ESTANDAR']);
                 if ($ARRAYVERESTANDAR) {
@@ -1374,6 +1553,7 @@ if ($_POST) {
                     })
                 </script>';
             }
+                }
             if (isset($_REQUEST['ELIMINAR'])) {
                 $IDELIMININAR = $_REQUEST['ID'];
                 $FOLIOELIMINAR = $_REQUEST['NUMEROFOLIODEXPORTACIONE'];

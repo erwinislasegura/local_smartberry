@@ -7,7 +7,7 @@ $DBNAME = "";
 $USER = "";
 $PASS = "";
 
-class REXPORTACIONMERCADO_ADO
+class REEXPORTACIONMERCADO_ADO
 {
     private $conexion;
 
