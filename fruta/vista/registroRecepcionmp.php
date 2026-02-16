@@ -315,20 +315,13 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
         $RESPUESTAAJAXMODAL['detalle'] = 'Debe ingresar rut y nombre del conductor.';
     } else {
-        $RUTLIMPIO = preg_replace('/[^0-9kK]/', '', $NUEVOCONDUCTORRUT);
-        $RUTNUMERICO = preg_replace('/[^0-9]/', '', $RUTLIMPIO);
-        $DVDATO = strtoupper(substr($RUTLIMPIO, -1));
+        $RUTNUMERICO = preg_replace('/[^0-9]/', '', $NUEVOCONDUCTORRUT);
         if ($RUTNUMERICO == "") {
             $MENSAJEMODAL = "CONDUCTOR_RUT_INVALIDO";
             $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
-            $RESPUESTAAJAXMODAL['detalle'] = 'El rut del conductor no tiene un formato válido.';
+            $RESPUESTAAJAXMODAL['detalle'] = 'El rut del conductor debe contener números.';
         } else {
             $NUEVOCONDUCTORRUT = $RUTNUMERICO;
-            if (!ctype_digit($DVDATO)) {
-                $DVCONDUCTOR = $DVDATO;
-            } else {
-                $DVCONDUCTOR = (int)$DVDATO;
-            }
         $EXISTECONDUCTOR = "";
         foreach ($ARRAYCONDUCTOR as $r) {
             if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
@@ -341,6 +334,7 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
             $CONDUCTOR = $EXISTECONDUCTOR;
             $MENSAJEMODAL = "CONDUCTOR_EXISTE";
         } else {
+            $NUEVOCONDUCTORTELEFONO = preg_replace('/[^0-9]/', '', $NUEVOCONDUCTORTELEFONO);
             if ($NUEVOCONDUCTORTELEFONO == "") {
                 $NUEVOCONDUCTORTELEFONO = 0;
             }
@@ -349,7 +343,7 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
             $CONDUCTOR = new CONDUCTOR();
             $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
             $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
-            $CONDUCTOR->__SET('DV_CONDUCTOR', $DVCONDUCTOR);
+            $CONDUCTOR->__SET('DV_CONDUCTOR', 0);
             $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
             $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
             $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
@@ -1040,6 +1034,26 @@ if (isset($_POST)) {
                     $select.val(id).trigger('change');
                 }
 
+                function obtenerJsonDesdeRespuesta(texto) {
+                    if (typeof texto !== 'string') {
+                        return null;
+                    }
+                    try {
+                        return JSON.parse(texto);
+                    } catch (e) {
+                        var inicio = texto.indexOf('{');
+                        var fin = texto.lastIndexOf('}');
+                        if (inicio !== -1 && fin !== -1 && fin > inicio) {
+                            try {
+                                return JSON.parse(texto.substring(inicio, fin + 1));
+                            } catch (e2) {
+                                return null;
+                            }
+                        }
+                        return null;
+                    }
+                }
+
                 function enviarModalAjax(formId, selectId, modalId) {
                     var $form = $('#' + formId);
                     if (!$form.length) {
@@ -1052,10 +1066,12 @@ if (isset($_POST)) {
                             type: 'POST',
                             url: window.location.href,
                             data: $form.serialize(),
-                            dataType: 'json'
-                        }).done(function(resp) {
+                            dataType: 'text'
+                        }).done(function(respText) {
+                            var resp = obtenerJsonDesdeRespuesta(respText);
                             if (!resp) {
-                                Swal.fire({icon: 'error', title: 'Error', text: 'No hubo respuesta del servidor.'});
+                                var detalleNoJson = (respText || '').replace(/<[^>]*>?/gm, '').trim().substring(0, 250);
+                                Swal.fire({icon: 'error', title: 'Error', text: detalleNoJson || 'No hubo respuesta válida del servidor.'});
                                 return;
                             }
                             if (resp.estado !== 'OK') {
