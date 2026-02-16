@@ -18,6 +18,7 @@ include_once '../../assest/controlador/DESPACHOEX_ADO.php';
 include_once '../../assest/controlador/DESPACHOPT_ADO.php';
 include_once '../../assest/controlador/DESPACHOIND_ADO.php';
 include_once '../../assest/controlador/INPSAG_ADO.php';
+include_once '../../assest/controlador/OPROCESO_ADO.php';
 
 include_once '../../assest/controlador/ERECEPCION_ADO.php';
 include_once '../../assest/controlador/EEXPORTACION_ADO.php';
@@ -64,6 +65,7 @@ $DESPACHOEX_ADO =  new DESPACHOEX_ADO();
 $DESPACHOPT_ADO =  new DESPACHOPT_ADO();
 $DESPACHOIND_ADO =  new DESPACHOIND_ADO();
 $INPSAG_ADO =  new INPSAG_ADO();
+$OPROCESO_ADO =  new OPROCESO_ADO();
 
 
 $DPINDUSTRIAL_ADO =  new DPINDUSTRIAL_ADO();
@@ -113,6 +115,7 @@ $OBSERVACIONPROCESO = "";
 $PRODUCTOR = "";
 $VESPECIES = "";
 $ESTADO = "";
+$OPROCESO = "";
 
 
 
@@ -192,6 +195,9 @@ $ARRAYVESPECIES = "";
 $ARRAYMERCADO = "";
 $ARRAYRMERCADO = "";
 $ARRAYMERCADOSPRODUCTOR = array();
+$ARRAYOPROCESO = "";
+$ARRAYPRODUCTOROP = array();
+$ARRAYVARIEDADOP = array();
 
 $ARRAYEVERERECEPCIONID = "";
 $ARRAYVEREEXPORTACION = "";
@@ -240,6 +246,7 @@ $ARRAYPRODUCTOR = $PRODUCTOR_ADO->listarProductorPorEmpresaCBX($EMPRESAS);
 $ARRAYVESPECIES = $VESPECIES_ADO->listarVespeciesPorEmpresaCBX($EMPRESAS);
 $ARRAYRMERCADO = $RMERCADO_ADO->listarRmercadoPorEmpresaCBX($EMPRESAS);
 $ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
+$ARRAYOPROCESO = $OPROCESO_ADO->listarOrdenProcesoCBX($EMPRESAS);
 
 $LISTAMERCADOS = array();
 if ($ARRAYMERCADO) {
@@ -399,6 +406,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $PRODUCTOR = "" . $r['ID_PRODUCTOR'];
             $VESPECIES = "" . $r['ID_VESPECIES'];
             $ESTADO = "" . $r['ESTADO'];
+            $OPROCESO = isset($r['ID_OPROCESO']) ? "" . $r['ID_OPROCESO'] : "";
 
         endforeach;
     }
@@ -433,6 +441,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $PRODUCTOR = "" . $r['ID_PRODUCTOR'];
             $VESPECIES = "" . $r['ID_VESPECIES'];
             $ESTADO = "" . $r['ESTADO'];
+            $OPROCESO = isset($r['ID_OPROCESO']) ? "" . $r['ID_OPROCESO'] : "";
 
         endforeach;
     }
@@ -470,6 +479,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $PRODUCTOR = "" . $r['ID_PRODUCTOR'];
             $VESPECIES = "" . $r['ID_VESPECIES'];
             $ESTADO = "" . $r['ESTADO'];
+            $OPROCESO = isset($r['ID_OPROCESO']) ? "" . $r['ID_OPROCESO'] : "";
         endforeach;
     }
 }
@@ -487,6 +497,9 @@ if (isset($_POST)) {
     if (isset($_REQUEST['OBSERVACIONPROCESO'])) {
         $OBSERVACIONPROCESO = $_REQUEST['OBSERVACIONPROCESO'];
     }
+    if (isset($_REQUEST['OPROCESO'])) {
+        $OPROCESO = $_REQUEST['OPROCESO'];
+    }
     if (isset($_REQUEST['PRODUCTOR'])) {
         $PRODUCTOR = $_REQUEST['PRODUCTOR'];
     }
@@ -503,6 +516,31 @@ if (isset($_POST)) {
         $TEMPORADA = "" . $_REQUEST['TEMPORADA'];
     }
 }
+
+if ($OPROCESO != "") {
+    $ARRAYOPRODUCTORVARIEDAD = $OPROCESO_ADO->listarProductorVariedadPorOp($OPROCESO);
+    $IDS_PRODUCTOR_OP = array();
+    $IDS_VARIEDAD_OP = array();
+    foreach ($ARRAYOPRODUCTORVARIEDAD as $rv) {
+        $IDS_PRODUCTOR_OP[(int)$rv['ID_PRODUCTOR']] = true;
+        if (!isset($ARRAYVARIEDADOP[(int)$rv['ID_PRODUCTOR']])) {
+            $ARRAYVARIEDADOP[(int)$rv['ID_PRODUCTOR']] = array();
+        }
+        $ARRAYVARIEDADOP[(int)$rv['ID_PRODUCTOR']][] = (int)$rv['ID_VESPECIES'];
+    }
+
+    $ARRAYPRODUCTOR = array_values(array_filter($ARRAYPRODUCTOR, function ($rp) use ($IDS_PRODUCTOR_OP) {
+        return isset($IDS_PRODUCTOR_OP[(int)$rp['ID_PRODUCTOR']]);
+    }));
+
+    $ARRAYVESPECIES = array_values(array_filter($ARRAYVESPECIES, function ($rv) use ($PRODUCTOR, $ARRAYVARIEDADOP) {
+        if ($PRODUCTOR == "" || !isset($ARRAYVARIEDADOP[(int)$PRODUCTOR])) {
+            return false;
+        }
+        return in_array((int)$rv['ID_VESPECIES'], $ARRAYVARIEDADOP[(int)$PRODUCTOR]);
+    }));
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -824,6 +862,22 @@ if (isset($_POST)) {
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <label id="val_tproceso" class="validacion"> </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Orden de Proceso (OP)</label>
+                                                <input type="hidden" class="form-control" id="OPROCESOE" name="OPROCESOE" value="<?php echo $OPROCESO; ?>" />
+                                                <select class="form-control select2" id="OPROCESO" name="OPROCESO" style="width: 100%;" onchange="this.form.submit()" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?>>
+                                                    <option></option>
+                                                    <?php foreach ($ARRAYOPROCESO as $r) : ?>
+                                                        <?php if ($ARRAYOPROCESO) { ?>
+                                                            <option value="<?php echo $r['ID_OPROCESO']; ?>" <?php if ($OPROCESO == $r['ID_OPROCESO']) { echo "selected"; } ?>>
+                                                                <?php echo $r['NUMERO_OPROCESO']; ?>
+                                                            </option>
+                                                        <?php } ?>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12">
@@ -1737,6 +1791,7 @@ if (isset($_POST)) {
             $PROCESO->__SET('ID_VESPECIES', $_REQUEST['VESPECIES']);
             $PROCESO->__SET('ID_PRODUCTOR', $_REQUEST['PRODUCTOR']);
             $PROCESO->__SET('ID_TPROCESO', $_REQUEST['TPROCESO']);
+            $PROCESO->__SET('ID_OPROCESO', isset($_REQUEST['OPROCESO']) ? $_REQUEST['OPROCESO'] : null);
             $PROCESO->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
             $PROCESO->__SET('ID_PLANTA', $_REQUEST['PLANTA']);
             $PROCESO->__SET('ID_TEMPORADA', $_REQUEST['TEMPORADA']);
@@ -1912,6 +1967,7 @@ if (isset($_POST)) {
                 $PROCESO->__SET('ID_VESPECIES',  $_REQUEST['VESPECIESE']);
                 $PROCESO->__SET('ID_PRODUCTOR',  $_REQUEST['PRODUCTORE']);
                 $PROCESO->__SET('ID_TPROCESO', $_REQUEST['TPROCESOE']);
+                $PROCESO->__SET('ID_OPROCESO', isset($_REQUEST['OPROCESOE']) ? $_REQUEST['OPROCESOE'] : null);
                 $PROCESO->__SET('ID_USUARIOM', $IDUSUARIOS);
                 $PROCESO->__SET('ID_PROCESO', $_REQUEST['IDP']);
                 //LLAMADA AL METODO DE EDITAR DEL CONTROLADOR
