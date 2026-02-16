@@ -239,6 +239,7 @@ $RESPUESTAAJAXMODAL = array(
 
 if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
     $NUEVOTRANSPORTE = trim($_REQUEST['NUEVOTRANSPORTE']);
+    $IDTRANSPORTESELECCIONADO = "";
     if ($NUEVOTRANSPORTE == "") {
         $MENSAJEMODAL = "TRANSPORTE_VACIO";
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
@@ -253,33 +254,33 @@ if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
         }
 
         if ($EXISTETRANSPORTE != "") {
-            $TRANSPORTE = $EXISTETRANSPORTE;
+            $IDTRANSPORTESELECCIONADO = $EXISTETRANSPORTE;
             $MENSAJEMODAL = "TRANSPORTE_EXISTE";
         } else {
             $ARRAYNUMERO = $TRANSPORTE_ADO->obtenerNumero($EMPRESAS);
             $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
-            $TRANSPORTE = new TRANSPORTE();
-            $TRANSPORTE->__SET('NUMERO_TRANSPORTE', $NUMERO);
-            $TRANSPORTE->__SET('RUT_TRANSPORTE', 0);
-            $TRANSPORTE->__SET('DV_TRANSPORTE', 0);
-            $TRANSPORTE->__SET('NOMBRE_TRANSPORTE', $NUEVOTRANSPORTE);
-            $TRANSPORTE->__SET('GIRO_TRANSPORTE', '');
-            $TRANSPORTE->__SET('RAZON_SOCIAL_TRANSPORTE', '');
-            $TRANSPORTE->__SET('DIRECCION_TRANSPORTE', '');
-            $TRANSPORTE->__SET('CONTACTO_TRANSPORTE', '');
-            $TRANSPORTE->__SET('TELEFONO_TRANSPORTE', 0);
-            $TRANSPORTE->__SET('EMAIL_TRANSPORTE', '');
-            $TRANSPORTE->__SET('NOTA_TRANSPORTE', 'Registro rápido desde recepción MP');
-            $TRANSPORTE->__SET('ID_EMPRESA', $EMPRESAS);
-            $TRANSPORTE->__SET('ID_USUARIOI', $IDUSUARIOS);
-            $TRANSPORTE->__SET('ID_USUARIOM', $IDUSUARIOS);
-            $TRANSPORTE_ADO->agregarTransporte($TRANSPORTE);
+            $TRANSPORTEMODEL = new TRANSPORTE();
+            $TRANSPORTEMODEL->__SET('NUMERO_TRANSPORTE', $NUMERO);
+            $TRANSPORTEMODEL->__SET('RUT_TRANSPORTE', 0);
+            $TRANSPORTEMODEL->__SET('DV_TRANSPORTE', 0);
+            $TRANSPORTEMODEL->__SET('NOMBRE_TRANSPORTE', $NUEVOTRANSPORTE);
+            $TRANSPORTEMODEL->__SET('GIRO_TRANSPORTE', '');
+            $TRANSPORTEMODEL->__SET('RAZON_SOCIAL_TRANSPORTE', '');
+            $TRANSPORTEMODEL->__SET('DIRECCION_TRANSPORTE', '');
+            $TRANSPORTEMODEL->__SET('CONTACTO_TRANSPORTE', '');
+            $TRANSPORTEMODEL->__SET('TELEFONO_TRANSPORTE', 0);
+            $TRANSPORTEMODEL->__SET('EMAIL_TRANSPORTE', '');
+            $TRANSPORTEMODEL->__SET('NOTA_TRANSPORTE', 'Registro rápido desde recepción MP');
+            $TRANSPORTEMODEL->__SET('ID_EMPRESA', $EMPRESAS);
+            $TRANSPORTEMODEL->__SET('ID_USUARIOI', $IDUSUARIOS);
+            $TRANSPORTEMODEL->__SET('ID_USUARIOM', $IDUSUARIOS);
+            $TRANSPORTE_ADO->agregarTransporte($TRANSPORTEMODEL);
             $MENSAJEMODAL = "TRANSPORTE_OK";
         }
 
         $ARRAYTRANSPORTE = $TRANSPORTE_ADO->listarTransportePorEmpresaCBX($EMPRESAS);
         foreach ($ARRAYTRANSPORTE as $r) {
-            if ((string)$r['ID_TRANSPORTE'] === (string)$TRANSPORTE) {
+            if ((string)$r['ID_TRANSPORTE'] === (string)$IDTRANSPORTESELECCIONADO) {
                 $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_TRANSPORTE'];
                 break;
             }
@@ -287,16 +288,17 @@ if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
         if ($MENSAJEMODAL == "TRANSPORTE_OK") {
             foreach ($ARRAYTRANSPORTE as $r) {
                 if (strtolower(trim($r['NOMBRE_TRANSPORTE'])) == strtolower($NUEVOTRANSPORTE)) {
-                    $TRANSPORTE = $r['ID_TRANSPORTE'];
+                    $IDTRANSPORTESELECCIONADO = $r['ID_TRANSPORTE'];
                     $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_TRANSPORTE'];
                     break;
                 }
             }
         }
+        $TRANSPORTE = $IDTRANSPORTESELECCIONADO;
         $RESPUESTAAJAXMODAL['estado'] = "OK";
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
         $RESPUESTAAJAXMODAL['tipo'] = "TRANSPORTE";
-        $RESPUESTAAJAXMODAL['id'] = $TRANSPORTE;
+        $RESPUESTAAJAXMODAL['id'] = $IDTRANSPORTESELECCIONADO;
         $RESPUESTAAJAXMODAL['detalle'] = '';
         if ($RESPUESTAAJAXMODAL['nombre'] == "") {
             $RESPUESTAAJAXMODAL['nombre'] = $NUEVOTRANSPORTE;
@@ -309,6 +311,7 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
     $NUEVOCONDUCTORRUT = trim($_REQUEST['NUEVOCONDUCTORRUT']);
     $NUEVOCONDUCTORNOMBRE = trim($_REQUEST['NUEVOCONDUCTORNOMBRE']);
     $NUEVOCONDUCTORTELEFONO = trim($_REQUEST['NUEVOCONDUCTORTELEFONO']);
+    $IDCONDUCTORSELECCIONADO = "";
 
     if ($NUEVOCONDUCTORRUT == "" || $NUEVOCONDUCTORNOMBRE == "") {
         $MENSAJEMODAL = "CONDUCTOR_VACIO";
@@ -331,7 +334,7 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
         }
 
         if ($EXISTECONDUCTOR != "") {
-            $CONDUCTOR = $EXISTECONDUCTOR;
+            $IDCONDUCTORSELECCIONADO = $EXISTECONDUCTOR;
             $MENSAJEMODAL = "CONDUCTOR_EXISTE";
         } else {
             $NUEVOCONDUCTORTELEFONO = preg_replace('/[^0-9]/', '', $NUEVOCONDUCTORTELEFONO);
@@ -340,24 +343,24 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
             }
             $ARRAYNUMERO = $CONDUCTOR_ADO->obtenerNumero($EMPRESAS);
             $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
-            $CONDUCTOR = new CONDUCTOR();
-            $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
-            $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
-            $CONDUCTOR->__SET('DV_CONDUCTOR', 0);
-            $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
-            $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
-            $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
-            $CONDUCTOR->__SET('EMAIL_CONDUCTOR', '');
-            $CONDUCTOR->__SET('ID_EMPRESA', $EMPRESAS);
-            $CONDUCTOR->__SET('ID_USUARIOI', $IDUSUARIOS);
-            $CONDUCTOR->__SET('ID_USUARIOM', $IDUSUARIOS);
-            $CONDUCTOR_ADO->agregarConductor($CONDUCTOR);
+            $CONDUCTORMODEL = new CONDUCTOR();
+            $CONDUCTORMODEL->__SET('NUMERO_CONDUCTOR', $NUMERO);
+            $CONDUCTORMODEL->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
+            $CONDUCTORMODEL->__SET('DV_CONDUCTOR', 0);
+            $CONDUCTORMODEL->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
+            $CONDUCTORMODEL->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
+            $CONDUCTORMODEL->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
+            $CONDUCTORMODEL->__SET('EMAIL_CONDUCTOR', '');
+            $CONDUCTORMODEL->__SET('ID_EMPRESA', $EMPRESAS);
+            $CONDUCTORMODEL->__SET('ID_USUARIOI', $IDUSUARIOS);
+            $CONDUCTORMODEL->__SET('ID_USUARIOM', $IDUSUARIOS);
+            $CONDUCTOR_ADO->agregarConductor($CONDUCTORMODEL);
             $MENSAJEMODAL = "CONDUCTOR_OK";
         }
 
         $ARRAYCONDUCTOR = $CONDUCTOR_ADO->listarConductorPorEmpresaCBX($EMPRESAS);
         foreach ($ARRAYCONDUCTOR as $r) {
-            if ((string)$r['ID_CONDUCTOR'] === (string)$CONDUCTOR) {
+            if ((string)$r['ID_CONDUCTOR'] === (string)$IDCONDUCTORSELECCIONADO) {
                 $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_CONDUCTOR'];
                 break;
             }
@@ -365,16 +368,17 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
         if ($MENSAJEMODAL == "CONDUCTOR_OK") {
             foreach ($ARRAYCONDUCTOR as $r) {
                 if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
-                    $CONDUCTOR = $r['ID_CONDUCTOR'];
+                    $IDCONDUCTORSELECCIONADO = $r['ID_CONDUCTOR'];
                     $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_CONDUCTOR'];
                     break;
                 }
             }
         }
+        $CONDUCTOR = $IDCONDUCTORSELECCIONADO;
         $RESPUESTAAJAXMODAL['estado'] = "OK";
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
         $RESPUESTAAJAXMODAL['tipo'] = "CONDUCTOR";
-        $RESPUESTAAJAXMODAL['id'] = $CONDUCTOR;
+        $RESPUESTAAJAXMODAL['id'] = $IDCONDUCTORSELECCIONADO;
         $RESPUESTAAJAXMODAL['detalle'] = '';
         if ($RESPUESTAAJAXMODAL['nombre'] == "") {
             $RESPUESTAAJAXMODAL['nombre'] = $NUEVOCONDUCTORNOMBRE;
