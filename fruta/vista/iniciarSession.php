@@ -104,7 +104,7 @@ if (!isset($_SESSION['login_attempts'])) {
     }
   </style>
 </head>
-<body>
+<body class="sistemRR">
   <div class="container">
     <div class="left-panel">
       <div class="logo">
