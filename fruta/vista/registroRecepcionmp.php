@@ -644,6 +644,68 @@ if (isset($_POST)) {
     <meta name="author" content="">
     <!-- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -->
     <?php include_once "../../assest/config/urlHead.php"; ?>
+    <style>
+        .sistemRR .box,
+        .sistemRR .card,
+        .sistemRR .modal-content {
+            border-radius: 12px;
+        }
+
+        .sistemRR .form-group {
+            margin-bottom: 0.6rem;
+        }
+
+        .sistemRR .form-group label,
+        .sistemRR .modal-body label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #4b5563;
+        }
+
+        .sistemRR .form-control,
+        .sistemRR .select2-container--default .select2-selection--single {
+            border-radius: 8px !important;
+            min-height: 34px;
+            height: 34px;
+            padding: 4px 10px;
+            border-color: #d8dce5;
+            font-size: 12px;
+            box-shadow: none;
+        }
+
+        .sistemRR textarea.form-control {
+            min-height: 66px;
+            height: auto;
+        }
+
+        .sistemRR .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 24px;
+            padding-left: 2px;
+            font-size: 12px;
+        }
+
+        .sistemRR .select2-container .select2-selection--single .select2-selection__arrow {
+            height: 32px;
+        }
+
+        .sistemRR .btn {
+            border-radius: 8px;
+            min-height: 34px;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .sistemRR .input-group-text {
+            border-radius: 8px 0 0 8px;
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+
+        .sistemRR .validacion {
+            font-size: 11px;
+        }
+    </style>
     <!- FUNCIONES BASES -!>
         <script type="text/javascript">
             //VALIDACION DE FORMULARIO            
@@ -893,7 +955,7 @@ if (isset($_POST)) {
 
 
 </head>
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA-!>
             <?php include_once "../../assest/config/menuFruta.php";    ?>
