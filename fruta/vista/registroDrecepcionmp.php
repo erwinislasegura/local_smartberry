@@ -552,36 +552,49 @@ if ($_POST) {
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <style>
-            /* sistemRR: estilo visual (campos redondeados y menor altura) */
+            /* sistemRR: estilo visual (campos redondeados + formato compacto) */
             #form_reg_dato .form-control,
             #form_reg_dato .select2-container--default .select2-selection--single,
             #form_reg_dato .select2-container--default .select2-selection--multiple {
-                border-radius: 12px !important;
-                min-height: 36px !important;
-                height: 36px;
-                padding-top: 4px;
-                padding-bottom: 4px;
+                border-radius: 14px !important;
+                min-height: 34px !important;
+                height: 34px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                font-size: 12px;
             }
 
             #form_reg_dato textarea.form-control {
-                min-height: 72px !important;
+                min-height: 68px !important;
                 height: auto !important;
-                border-radius: 12px !important;
+                border-radius: 14px !important;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .form-group {
+                margin-bottom: 10px;
+            }
+
+            #form_reg_dato label {
+                margin-bottom: 4px;
+                font-size: 12px;
             }
 
             #form_reg_dato .select2-container .select2-selection--single .select2-selection__rendered {
-                line-height: 34px !important;
+                line-height: 32px !important;
                 padding-left: 12px;
+                font-size: 12px;
             }
 
             #form_reg_dato .select2-container .select2-selection--single .select2-selection__arrow {
-                height: 34px !important;
+                height: 32px !important;
             }
 
             #form_reg_dato .btn {
-                border-radius: 12px !important;
-                padding-top: 6px;
-                padding-bottom: 6px;
+                border-radius: 14px !important;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                min-height: 34px;
             }
         </style>
         <!- FUNCIONES BASES -!>
