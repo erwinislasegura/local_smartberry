@@ -150,50 +150,71 @@ class ERECEPCION_ADO {
     //REGISTRO DE UNA NUEVA FILA   
     public function agregarEstandar(ERECEPCION $ERECEPCION){
         try{
-            
-            
-            $query=
-            "INSERT INTO estandar_erecepcion (     
-                                                    CODIGO_ESTANDAR,
-                                                    NOMBRE_ESTANDAR,
-                                                    CANTIDAD_ENVASE_ESTANDAR,
-                                                    PESO_ENVASE_ESTANDAR, 
-                                                    PESO_PALLET_ESTANDAR,
+            if ($ERECEPCION->__GET('ID_PRODUCTO') == NULL || $ERECEPCION->__GET('ID_PRODUCTO') == "") {
+                $ERECEPCION->__SET('ID_PRODUCTO', NULL);
+            }
 
-                                                    TRATAMIENTO1,
-                                                    TRATAMIENTO2,
-                                                    ID_ESPECIES,
-                                                    ID_EMPRESA, 
-                                                    ID_PRODUCTO, 
+            $existeAgerencial = false;
+            $consultaColumna = $this->conexion->prepare("SHOW COLUMNS FROM estandar_erecepcion LIKE 'ID_AGERENCIAL';");
+            $consultaColumna->execute();
+            if ($consultaColumna->fetch()) {
+                $existeAgerencial = true;
+            }
+            $consultaColumna = null;
 
-                                                    ID_USUARIOI, 
-                                                    ID_USUARIOM, 
-                                                    INGRESO ,
-                                                    MODIFICACION , 
-                                                    TFRUTA_ESTANDAR, 
-                                                    ESTADO_REGISTRO 
-                                            ) 
-                                            VALUES
-	       	( ?, ?, ?, ?, ?,    ?, ?, ?, ?, ?,   ?, ?,   SYSDATE(), SYSDATE(),  1,  1);";
-            $this->conexion->prepare($query)
-            ->execute(
-                array(                    
-                    $ERECEPCION->__GET('CODIGO_ESTANDAR'),
-                    $ERECEPCION->__GET('NOMBRE_ESTANDAR'),
-                    $ERECEPCION->__GET('CANTIDAD_ENVASE_ESTANDAR')  ,
-                    $ERECEPCION->__GET('PESO_ENVASE_ESTANDAR')  ,
-                    $ERECEPCION->__GET('PESO_PALLET_ESTANDAR')  ,
-                    $ERECEPCION->__GET('TRATAMIENTO1')  ,
-                    $ERECEPCION->__GET('TRATAMIENTO2')  ,
-                    $ERECEPCION->__GET('ID_ESPECIES') ,
-                    $ERECEPCION->__GET('ID_EMPRESA') ,
-                    $ERECEPCION->__GET('ID_PRODUCTO') ,
-                    $ERECEPCION->__GET('ID_USUARIOI') ,
-                    $ERECEPCION->__GET('ID_USUARIOM')               
-                )
-                
-                );
-            
+            $columnas = "
+                CODIGO_ESTANDAR,
+                NOMBRE_ESTANDAR,
+                CANTIDAD_ENVASE_ESTANDAR,
+                PESO_ENVASE_ESTANDAR,
+                PESO_PALLET_ESTANDAR,
+                TRATAMIENTO1,
+                TRATAMIENTO2,
+                ID_ESPECIES,
+                ID_EMPRESA,
+                ID_PRODUCTO,
+                ID_USUARIOI,
+                ID_USUARIOM";
+
+            $marcadores = "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+
+            $parametros = array(
+                $ERECEPCION->__GET('CODIGO_ESTANDAR'),
+                $ERECEPCION->__GET('NOMBRE_ESTANDAR'),
+                $ERECEPCION->__GET('CANTIDAD_ENVASE_ESTANDAR'),
+                $ERECEPCION->__GET('PESO_ENVASE_ESTANDAR'),
+                $ERECEPCION->__GET('PESO_PALLET_ESTANDAR'),
+                $ERECEPCION->__GET('TRATAMIENTO1'),
+                $ERECEPCION->__GET('TRATAMIENTO2'),
+                $ERECEPCION->__GET('ID_ESPECIES'),
+                $ERECEPCION->__GET('ID_EMPRESA'),
+                $ERECEPCION->__GET('ID_PRODUCTO'),
+                $ERECEPCION->__GET('ID_USUARIOI'),
+                $ERECEPCION->__GET('ID_USUARIOM')
+            );
+
+            if ($existeAgerencial) {
+                $columnas .= ", ID_AGERENCIAL";
+                $marcadores .= ", ?";
+                $parametros[] = 1;
+            }
+
+            $query = "INSERT INTO estandar_erecepcion (
+                        " . $columnas . ",
+                        INGRESO,
+                        MODIFICACION,
+                        TFRUTA_ESTANDAR,
+                        ESTADO_REGISTRO
+                    ) VALUES (
+                        " . $marcadores . ",
+                        SYSDATE(),
+                        SYSDATE(),
+                        1,
+                        1
+                    );";
+
+            $this->conexion->prepare($query)->execute($parametros);
+
         }catch(Exception $e){
             die($e->getMessage());
         }
