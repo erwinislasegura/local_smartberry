@@ -390,7 +390,8 @@ $ARRAYPLANTACAMBIAR = $PLANTA_ADO->listarPlantaPropiaCBX();
             <ul class="treeview-menu">
                 <?php if($PEFCICARGA=="1"){ ?>
                   <li><a href="registroCambiarIcarga.php">Cambio  Inst. Carga</i></a></li>
-                <?php  } ?>  
+                <?php  } ?>
+                <li><a href="registroOrdenProceso.php">Ordenes de Proceso (OP)</a></li>
             </ul>
           </li>
         <?php  } ?> 

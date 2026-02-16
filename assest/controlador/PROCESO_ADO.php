@@ -192,6 +192,7 @@ class PROCESO_ADO
                                                 ID_VESPECIES, 
                                                 ID_PRODUCTOR, 
                                                 ID_TPROCESO,
+                                                ID_OPROCESO,
                                                 ID_EMPRESA,
                                                 ID_PLANTA,
                                                 ID_TEMPORADA, 
@@ -226,6 +227,7 @@ class PROCESO_ADO
                         $PROCESO->__GET('ID_VESPECIES'),
                         $PROCESO->__GET('ID_PRODUCTOR'),
                         $PROCESO->__GET('ID_TPROCESO'),
+                        $PROCESO->__GET('ID_OPROCESO'),
                         $PROCESO->__GET('ID_EMPRESA'),
                         $PROCESO->__GET('ID_PLANTA'),
                         $PROCESO->__GET('ID_TEMPORADA'),
@@ -269,6 +271,7 @@ class PROCESO_ADO
             ID_VESPECIES =?,
             ID_PRODUCTOR =?,
             ID_TPROCESO =?,
+            ID_OPROCESO =?,
 
             ID_USUARIOM =?
 
@@ -298,6 +301,7 @@ class PROCESO_ADO
                         $PROCESO->__GET('ID_VESPECIES'),
                         $PROCESO->__GET('ID_PRODUCTOR'),
                         $PROCESO->__GET('ID_TPROCESO'),
+                        $PROCESO->__GET('ID_OPROCESO'),
                         
                         $PROCESO->__GET('ID_USUARIOM'),
 
