@@ -18,6 +18,8 @@ include_once '../../assest/controlador/CONDUCTOR_ADO.php';
 include_once '../../assest/controlador/TMANEJO_ADO.php';
 include_once '../../assest/controlador/TTRATAMIENTO1_ADO.php';
 include_once '../../assest/controlador/TTRATAMIENTO2_ADO.php';
+include_once '../../assest/controlador/RMERCADO_ADO.php';
+include_once '../../assest/controlador/MERCADO_ADO.php';
 
 include_once '../../assest/controlador/RECEPCIONMP_ADO.php';
 include_once '../../assest/controlador/DRECEPCIONMP_ADO.php';
@@ -56,6 +58,8 @@ $PRODUCTOR_ADO = new PRODUCTOR_ADO();
 $TMANEJO_ADO = new TMANEJO_ADO();
 $TTRATAMIENTO1_ADO =  new TTRATAMIENTO1_ADO();
 $TTRATAMIENTO2_ADO =  new TTRATAMIENTO2_ADO();
+$RMERCADO_ADO =  new RMERCADO_ADO();
+$MERCADO_ADO =  new MERCADO_ADO();
 
 
 $EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
@@ -194,6 +198,9 @@ $ARRAYRECEPCIONE="";
 $ARRAYINVENTARIOE="";
 $ARRAYDRECEPCIONAGRUPADO="";
 $ARRAYDRECEPCIONETOTALES="";
+$ARRAYRMERCADO = "";
+$ARRAYMERCADO = "";
+$ARRAYMERCADOSPRODUCTOR = array();
 
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
@@ -204,6 +211,27 @@ $ARRAYPRODUCTOR = $PRODUCTOR_ADO->listarProductorPorEmpresaCBX($EMPRESAS);
 $ARRAYTDOCUMENTO = $TDOCUMENTO_ADO->listarTdocumentoPorEmpresaCBX($EMPRESAS);
 //$ARRAYBODEGA =  $BODEGA_ADO->listarBodegaPorEmpresaCBX($EMPRESAS);
 $ARRAYPLANTA2 = $PLANTA_ADO->listarPlantaExternaCBX();
+$ARRAYRMERCADO = $RMERCADO_ADO->listarRmercadoPorEmpresaCBX($EMPRESAS);
+$ARRAYMERCADO = $MERCADO_ADO->listarMercadoPorEmpresaCBX($EMPRESAS);
+
+$LISTAMERCADOS = array();
+if ($ARRAYMERCADO) {
+    foreach ($ARRAYMERCADO as $r) {
+        $LISTAMERCADOS[$r['ID_MERCADO']] = $r['NOMBRE_MERCADO'];
+    }
+}
+if ($ARRAYRMERCADO) {
+    foreach ($ARRAYRMERCADO as $r) {
+        $IDPRODUCTORRM = $r['ID_PRODUCTOR'];
+        $IDMERCADORM = $r['ID_MERCADO'];
+        if (isset($LISTAMERCADOS[$IDMERCADORM])) {
+            if (!isset($ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM])) {
+                $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM] = array();
+            }
+            $ARRAYMERCADOSPRODUCTOR[$IDPRODUCTORRM][] = $LISTAMERCADOS[$IDMERCADORM];
+        }
+    }
+}
 
 
 $ARRAYFECHAACTUAL = $RECEPCIONMP_ADO->obtenerFecha();
@@ -940,7 +968,7 @@ if (isset($_POST)) {
                                     document.form_reg_dato.PATENTECARRO.style.borderColor = "#4AF575";
                 */
 
-                if (TRECEPCION == 1) {
+                if (TRECEPCION == 1 || TRECEPCION == 3) {
                     PRODUCTOR = document.getElementById("PRODUCTOR").selectedIndex;
 
 
@@ -1181,6 +1209,38 @@ if (isset($_POST)) {
                         text: 'Debe ingresar rut y nombre del conductor.'
                     });
                 }
+
+                var mercadosPorProductor = <?php echo json_encode($ARRAYMERCADOSPRODUCTOR); ?>;
+
+                function actualizarMercadosProductor() {
+                    var $productor = $('#PRODUCTOR');
+                    var $contenedor = $('#mercados-productor-wrap');
+                    var $lista = $('#mercados-productor-lista');
+
+                    if (!$productor.length || !$contenedor.length || !$lista.length) {
+                        return;
+                    }
+
+                    var idProductor = $productor.val();
+                    $lista.empty();
+
+                    if (!idProductor || !mercadosPorProductor[idProductor] || mercadosPorProductor[idProductor].length === 0) {
+                        $contenedor.hide();
+                        return;
+                    }
+
+                    mercadosPorProductor[idProductor].forEach(function(nombreMercado) {
+                        $lista.append('<span class="badge badge-info mr-1 mb-1">' + nombreMercado + '</span>');
+                    });
+
+                    $contenedor.show();
+                }
+
+                $(document).on('change', '#PRODUCTOR', function() {
+                    actualizarMercadosProductor();
+                });
+
+                actualizarMercadosProductor();
             });
          
         </script>
@@ -1425,6 +1485,12 @@ if (isset($_POST)) {
                                                     <label id="val_productor" class="validacion"> </label>
                                                 </div>
                                             </div>
+                                            <div class="col-xxl-4 col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12" id="mercados-productor-wrap" style="display:none;">
+                                                <div class="form-group mb-0">
+                                                    <label class="mb-1">Mercados habilitados</label>
+                                                    <div id="mercados-productor-lista"></div>
+                                                </div>
+                                            </div>
                                         <?php } ?>
                                         <?php if ($TRECEPCION == "2") { ?>
                                             <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
@@ -1489,6 +1555,12 @@ if (isset($_POST)) {
                                                         <?php endforeach; ?>
                                                     </select>
                                                     <label id="val_productor" class="validacion"> </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xxl-4 col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12" id="mercados-productor-wrap" style="display:none;">
+                                                <div class="form-group mb-0">
+                                                    <label class="mb-1">Mercados habilitados</label>
+                                                    <div id="mercados-productor-lista"></div>
                                                 </div>
                                             </div>
                                         <?php } ?>
