@@ -1,5 +1,11 @@
 <?php
 include_once '../../assest/modelo/REEXPORTACIONMERCADO.php';
+include_once '../../assest/config/BDCONFIG.php';
+
+$HOST = "";
+$DBNAME = "";
+$USER = "";
+$PASS = "";
 
 class REXPORTACIONMERCADO_ADO
 {
@@ -8,7 +14,14 @@ class REXPORTACIONMERCADO_ADO
     public function __CONSTRUCT()
     {
         try {
-            $this->conexion = Database::Conectar();
+            $BDCONFIG = new BDCONFIG();
+            $HOST = $BDCONFIG->__GET('HOST');
+            $DBNAME = $BDCONFIG->__GET('DBNAME');
+            $USER = $BDCONFIG->__GET('USER');
+            $PASS = $BDCONFIG->__GET('PASS');
+
+            $this->conexion = new PDO('mysql:host=' . $HOST . ';dbname=' . $DBNAME, $USER, $PASS);
+            $this->conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (Exception $e) {
             die($e->getMessage());
         }
