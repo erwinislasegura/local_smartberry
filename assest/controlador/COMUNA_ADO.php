@@ -114,7 +114,11 @@ class COMUNA_ADO {
                                                 FROM  ubicacion_comuna comuna, ubicacion_provincia provincia, ubicacion_region region, ubicacion_pais pais
                                                 WHERE comuna.ID_PROVINCIA = provincia.ID_PROVINCIA 
                                                     AND provincia.ID_REGION = region.ID_REGION 
-                                                    AND region.ID_PAIS = pais.ID_PAIS;	");
+                                                    AND region.ID_PAIS = pais.ID_PAIS
+                                                    AND comuna.ESTADO_REGISTRO = 1
+                                                    AND provincia.ESTADO_REGISTRO = 1
+                                                    AND region.ESTADO_REGISTRO = 1
+                                                    AND pais.ESTADO_REGISTRO = 1;	");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
