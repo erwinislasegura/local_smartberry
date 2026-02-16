@@ -152,6 +152,12 @@ $MENSAJE = "";
 $MENSAJE2 = "";
 $MENSAJE3 = "";
 $MENSAJEVALIDATO = "";
+$MENSAJEMODAL = "";
+
+$NUEVOTRANSPORTE = "";
+$NUEVOCONDUCTORRUT = "";
+$NUEVOCONDUCTORNOMBRE = "";
+$NUEVOCONDUCTORTELEFONO = "";
 
 $FOLIONUMERO = "";
 
@@ -221,7 +227,64 @@ if (isset($_GET["a"])) {
     $accion_dato = "";
 }
 
+if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
+    $NUEVOTRANSPORTE = trim($_REQUEST['NUEVOTRANSPORTE']);
+    if ($NUEVOTRANSPORTE == "") {
+        $MENSAJEMODAL = "TRANSPORTE_VACIO";
+    } else {
+        $ARRAYNUMERO = $TRANSPORTE_ADO->obtenerNumero($EMPRESAS);
+        $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
+        $TRANSPORTE = new TRANSPORTE();
+        $TRANSPORTE->__SET('NUMERO_TRANSPORTE', $NUMERO);
+        $TRANSPORTE->__SET('RUT_TRANSPORTE', 0);
+        $TRANSPORTE->__SET('DV_TRANSPORTE', 0);
+        $TRANSPORTE->__SET('NOMBRE_TRANSPORTE', $NUEVOTRANSPORTE);
+        $TRANSPORTE->__SET('GIRO_TRANSPORTE', '');
+        $TRANSPORTE->__SET('RAZON_SOCIAL_TRANSPORTE', '');
+        $TRANSPORTE->__SET('DIRECCION_TRANSPORTE', '');
+        $TRANSPORTE->__SET('CONTACTO_TRANSPORTE', '');
+        $TRANSPORTE->__SET('TELEFONO_TRANSPORTE', '');
+        $TRANSPORTE->__SET('EMAIL_TRANSPORTE', '');
+        $TRANSPORTE->__SET('NOTA_TRANSPORTE', 'Registro rápido desde recepción MP');
+        $TRANSPORTE->__SET('ID_EMPRESA', $EMPRESAS);
+        $TRANSPORTE->__SET('ID_USUARIOI', $IDUSUARIOS);
+        $TRANSPORTE->__SET('ID_USUARIOM', $IDUSUARIOS);
+        $TRANSPORTE_ADO->agregarTransporte($TRANSPORTE);
+        $ARRAYTRANSPORTE = $TRANSPORTE_ADO->listarTransportePorEmpresaCBX($EMPRESAS);
+        $MENSAJEMODAL = "TRANSPORTE_OK";
+        $NUEVOTRANSPORTE = "";
+    }
+}
 
+if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
+    $NUEVOCONDUCTORRUT = trim($_REQUEST['NUEVOCONDUCTORRUT']);
+    $NUEVOCONDUCTORNOMBRE = trim($_REQUEST['NUEVOCONDUCTORNOMBRE']);
+    $NUEVOCONDUCTORTELEFONO = trim($_REQUEST['NUEVOCONDUCTORTELEFONO']);
+
+    if ($NUEVOCONDUCTORRUT == "" || $NUEVOCONDUCTORNOMBRE == "") {
+        $MENSAJEMODAL = "CONDUCTOR_VACIO";
+    } else {
+        $ARRAYNUMERO = $CONDUCTOR_ADO->obtenerNumero($EMPRESAS);
+        $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
+        $CONDUCTOR = new CONDUCTOR();
+        $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
+        $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
+        $CONDUCTOR->__SET('DV_CONDUCTOR', 0);
+        $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
+        $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
+        $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
+        $CONDUCTOR->__SET('EMAIL_CONDUCTOR', '');
+        $CONDUCTOR->__SET('ID_EMPRESA', $EMPRESAS);
+        $CONDUCTOR->__SET('ID_USUARIOI', $IDUSUARIOS);
+        $CONDUCTOR->__SET('ID_USUARIOM', $IDUSUARIOS);
+        $CONDUCTOR_ADO->agregarConductor($CONDUCTOR);
+        $ARRAYCONDUCTOR = $CONDUCTOR_ADO->listarConductorPorEmpresaCBX($EMPRESAS);
+        $MENSAJEMODAL = "CONDUCTOR_OK";
+        $NUEVOCONDUCTORRUT = "";
+        $NUEVOCONDUCTORNOMBRE = "";
+        $NUEVOCONDUCTORTELEFONO = "";
+    }
+}
 
 
 $ARRAYFOLIO3 = $FOLIO_ADO->verFolioPorEmpresaPlantaTemporadaTmateriaprima($EMPRESAS, $PLANTAS, $TEMPORADAS);
@@ -581,6 +644,68 @@ if (isset($_POST)) {
     <meta name="author" content="">
     <!-- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -->
     <?php include_once "../../assest/config/urlHead.php"; ?>
+    <style>
+        .sistemRR .box,
+        .sistemRR .card,
+        .sistemRR .modal-content {
+            border-radius: 12px;
+        }
+
+        .sistemRR .form-group {
+            margin-bottom: 0.6rem;
+        }
+
+        .sistemRR .form-group label,
+        .sistemRR .modal-body label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #4b5563;
+        }
+
+        .sistemRR .form-control,
+        .sistemRR .select2-container--default .select2-selection--single {
+            border-radius: 8px !important;
+            min-height: 34px;
+            height: 34px;
+            padding: 4px 10px;
+            border-color: #d8dce5;
+            font-size: 12px;
+            box-shadow: none;
+        }
+
+        .sistemRR textarea.form-control {
+            min-height: 66px;
+            height: auto;
+        }
+
+        .sistemRR .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 24px;
+            padding-left: 2px;
+            font-size: 12px;
+        }
+
+        .sistemRR .select2-container .select2-selection--single .select2-selection__arrow {
+            height: 32px;
+        }
+
+        .sistemRR .btn {
+            border-radius: 8px;
+            min-height: 34px;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .sistemRR .input-group-text {
+            border-radius: 8px 0 0 8px;
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+
+        .sistemRR .validacion {
+            font-size: 11px;
+        }
+    </style>
     <!- FUNCIONES BASES -!>
         <script type="text/javascript">
             //VALIDACION DE FORMULARIO            
@@ -791,12 +916,46 @@ if (isset($_POST)) {
                 var win = window.open(url, '_blank');
                 win.focus();
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var mensajeModal = '<?php echo $MENSAJEMODAL; ?>';
+                if (mensajeModal === 'TRANSPORTE_OK') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Transporte agregado',
+                        text: 'Se agregó correctamente el transporte.'
+                    });
+                }
+                if (mensajeModal === 'CONDUCTOR_OK') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Conductor agregado',
+                        text: 'Se agregó correctamente el conductor.'
+                    });
+                }
+                if (mensajeModal === 'TRANSPORTE_VACIO') {
+                    $('#modalAgregarTransporte').modal('show');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Dato requerido',
+                        text: 'Debe ingresar el nombre del transporte.'
+                    });
+                }
+                if (mensajeModal === 'CONDUCTOR_VACIO') {
+                    $('#modalAgregarConductor').modal('show');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Datos requeridos',
+                        text: 'Debe ingresar rut y nombre del conductor.'
+                    });
+                }
+            });
          
         </script>
 
 
 </head>
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA-!>
             <?php include_once "../../assest/config/menuFruta.php";    ?>
@@ -947,7 +1106,7 @@ if (isset($_POST)) {
                                         <div class="col-xxl-1 col-xl-1 col-lg-3 col-md-3 col-sm-3 col-3 col-xs-3">
                                             <div class="form-group">
                                                 <br>
-                                                <button type="button" class="btn btn-success btn-block" data-toggle="tooltip" title="Agregar Transporte" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?> id="defecto" name="pop" Onclick="abrirVentana('registroPopTransporte.php' ); ">
+                                                <button type="button" class="btn btn-success btn-block" data-toggle="tooltip" title="Agregar Transporte" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?> id="defecto" name="pop" onclick="$('#modalAgregarTransporte').modal('show');">
                                                     <i class="glyphicon glyphicon-plus"></i>
                                                 </button>
                                             </div>
@@ -974,7 +1133,7 @@ if (isset($_POST)) {
                                         <div class="col-xxl-1 col-xl-1 col-lg-3 col-md-3 col-sm-3 col-3 col-xs-3">
                                             <div class="form-group">
                                                 <br>
-                                                <button type="button" class=" btn btn-success btn-block" data-toggle="tooltip" title="Agregar Conductor" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?> id="defecto" name="pop" Onclick="abrirVentana('registroPopConductor.php' ); ">
+                                                <button type="button" class=" btn btn-success btn-block" data-toggle="tooltip" title="Agregar Conductor" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?> id="defecto" name="pop" onclick="$('#modalAgregarConductor').modal('show');">
                                                     <i class="glyphicon glyphicon-plus"></i>
                                                 </button>
                                             </div>
@@ -1193,6 +1352,60 @@ if (isset($_POST)) {
                                 </div>
                             </div>
                         </form>
+
+                        <div class="modal fade" id="modalAgregarTransporte" tabindex="-1" role="dialog" aria-labelledby="modalAgregarTransporteLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success">
+                                        <h5 class="modal-title text-white" id="modalAgregarTransporteLabel">Agregar Transporte</h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label for="NUEVOTRANSPORTE">Nombre</label>
+                                            <input type="text" class="form-control" id="NUEVOTRANSPORTE" name="NUEVOTRANSPORTE" value="<?php echo $NUEVOTRANSPORTE; ?>" placeholder="Nombre Transporte" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-success" name="AGREGAR_TRANSPORTE_MODAL" value="AGREGAR_TRANSPORTE_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="modalAgregarConductor" tabindex="-1" role="dialog" aria-labelledby="modalAgregarConductorLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success">
+                                        <h5 class="modal-title text-white" id="modalAgregarConductorLabel">Agregar Conductor</h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label for="NUEVOCONDUCTORRUT">Rut</label>
+                                            <input type="text" class="form-control" id="NUEVOCONDUCTORRUT" name="NUEVOCONDUCTORRUT" value="<?php echo $NUEVOCONDUCTORRUT; ?>" placeholder="Rut Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="NUEVOCONDUCTORNOMBRE">Nombre</label>
+                                            <input type="text" class="form-control" id="NUEVOCONDUCTORNOMBRE" name="NUEVOCONDUCTORNOMBRE" value="<?php echo $NUEVOCONDUCTORNOMBRE; ?>" placeholder="Nombre Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="NUEVOCONDUCTORTELEFONO">Teléfono</label>
+                                            <input type="text" class="form-control" id="NUEVOCONDUCTORTELEFONO" name="NUEVOCONDUCTORTELEFONO" value="<?php echo $NUEVOCONDUCTORTELEFONO; ?>" placeholder="Teléfono Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-success" name="AGREGAR_CONDUCTOR_MODAL" value="AGREGAR_CONDUCTOR_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <?php if (isset($_GET['op'])): ?>
                             <div class="card">
