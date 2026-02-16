@@ -40,6 +40,19 @@ class AUSUARIO_ADO {
             die($e->getMessage());
         }
     }
+
+    private function obtenerSiguienteIDAusuario(){
+        try{
+            $datos=$this->conexion->prepare("SELECT IFNULL(MAX(ID_AUSUARIO),0)+1 AS ID_AUSUARIO FROM usuario_ausuario;");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado[0]['ID_AUSUARIO'];
+        }catch(Exception $e){
+            die($e->getMessage());
+        }
+    }
     
     
     
@@ -320,6 +333,7 @@ class AUSUARIO_ADO {
 
     public function agregarAusuario(AUSUARIO $AUSUARIO){
         try{
+            $IDAUSUARIO = $this->obtenerSiguienteIDAusuario();
             
             IF ($AUSUARIO->__GET('ID_EMPRESA') == NULL) {
                 $AUSUARIO->__SET('ID_EMPRESA', NULL);
@@ -335,6 +349,7 @@ class AUSUARIO_ADO {
             
             $query=
             "INSERT INTO  usuario_ausuario  (   
+                                                ID_AUSUARIO,
                                                 NUMERO_REGISTRO , 
                                                 TMODULO ,
                                                 TOPERACION ,
@@ -350,10 +365,11 @@ class AUSUARIO_ADO {
 
                                                 INGRESO 
                                             ) VALUES
-	       	( ?, ?, ?,   ?, ?, ?,   ?, ?, ?, ?, SYSDATE() );";
+	       	( ?, ?, ?, ?,   ?, ?, ?,   ?, ?, ?, ?, SYSDATE() );";
             $this->conexion->prepare($query)
             ->execute(
-                array(                    
+                array(
+                    $IDAUSUARIO,
                     $AUSUARIO->__GET('NUMERO_REGISTRO')  ,
                     $AUSUARIO->__GET('TMODULO') ,
                     $AUSUARIO->__GET('TOPERACION') ,
@@ -377,10 +393,12 @@ class AUSUARIO_ADO {
     
 
     public function agregarAusuario2($NUMERO,$TMODULO,$TOPERACION, $MENSAJE, $TABLA, $REGISTRO, $USUARIO, $EMPRESA, $PLANTA, $TEMPORADA){
-        try{                   
+        try{
+            $IDAUSUARIO = $this->obtenerSiguienteIDAusuario();
             $query=
                                             "INSERT INTO  usuario_ausuario  
                                             (   
+                                                ID_AUSUARIO,
                                                 NUMERO_REGISTRO , 
                                                 TMODULO ,
                                                 TOPERACION ,
@@ -396,7 +414,7 @@ class AUSUARIO_ADO {
 
                                                 INGRESO 
                                             ) VALUES
-	       	                                (  '".$NUMERO."',  '".$TMODULO."',  '".$TOPERACION."',   '".$MENSAJE."',  '".$TABLA."', ".$REGISTRO.",  ".$USUARIO.", ".$EMPRESA.", ".$PLANTA.", ".$TEMPORADA.",    SYSDATE()  );";
+	       	                                (  '".$IDAUSUARIO."', '".$NUMERO."',  '".$TMODULO."',  '".$TOPERACION."',   '".$MENSAJE."',  '".$TABLA."', ".$REGISTRO.",  ".$USUARIO.", ".$EMPRESA.", ".$PLANTA.", ".$TEMPORADA.",    SYSDATE()  );";
 
                             //echo $query;
 
