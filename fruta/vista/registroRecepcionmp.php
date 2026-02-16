@@ -227,31 +227,80 @@ if (isset($_GET["a"])) {
     $accion_dato = "";
 }
 
+$ESAJAXMODAL = isset($_REQUEST['AJAX_MODAL']) && $_REQUEST['AJAX_MODAL'] == "1";
+$RESPUESTAAJAXMODAL = array(
+    'estado' => 'ERROR',
+    'mensaje' => '',
+    'tipo' => '',
+    'id' => '',
+    'nombre' => '',
+    'detalle' => ''
+);
+
 if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
     $NUEVOTRANSPORTE = trim($_REQUEST['NUEVOTRANSPORTE']);
     if ($NUEVOTRANSPORTE == "") {
         $MENSAJEMODAL = "TRANSPORTE_VACIO";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['detalle'] = 'Debe ingresar el nombre del transporte.';
     } else {
-        $ARRAYNUMERO = $TRANSPORTE_ADO->obtenerNumero($EMPRESAS);
-        $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
-        $TRANSPORTE = new TRANSPORTE();
-        $TRANSPORTE->__SET('NUMERO_TRANSPORTE', $NUMERO);
-        $TRANSPORTE->__SET('RUT_TRANSPORTE', 0);
-        $TRANSPORTE->__SET('DV_TRANSPORTE', 0);
-        $TRANSPORTE->__SET('NOMBRE_TRANSPORTE', $NUEVOTRANSPORTE);
-        $TRANSPORTE->__SET('GIRO_TRANSPORTE', '');
-        $TRANSPORTE->__SET('RAZON_SOCIAL_TRANSPORTE', '');
-        $TRANSPORTE->__SET('DIRECCION_TRANSPORTE', '');
-        $TRANSPORTE->__SET('CONTACTO_TRANSPORTE', '');
-        $TRANSPORTE->__SET('TELEFONO_TRANSPORTE', '');
-        $TRANSPORTE->__SET('EMAIL_TRANSPORTE', '');
-        $TRANSPORTE->__SET('NOTA_TRANSPORTE', 'Registro rápido desde recepción MP');
-        $TRANSPORTE->__SET('ID_EMPRESA', $EMPRESAS);
-        $TRANSPORTE->__SET('ID_USUARIOI', $IDUSUARIOS);
-        $TRANSPORTE->__SET('ID_USUARIOM', $IDUSUARIOS);
-        $TRANSPORTE_ADO->agregarTransporte($TRANSPORTE);
+        $EXISTETRANSPORTE = "";
+        foreach ($ARRAYTRANSPORTE as $r) {
+            if (strtolower(trim($r['NOMBRE_TRANSPORTE'])) == strtolower($NUEVOTRANSPORTE)) {
+                $EXISTETRANSPORTE = $r['ID_TRANSPORTE'];
+                break;
+            }
+        }
+
+        if ($EXISTETRANSPORTE != "") {
+            $TRANSPORTE = $EXISTETRANSPORTE;
+            $MENSAJEMODAL = "TRANSPORTE_EXISTE";
+        } else {
+            $ARRAYNUMERO = $TRANSPORTE_ADO->obtenerNumero($EMPRESAS);
+            $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
+            $TRANSPORTE = new TRANSPORTE();
+            $TRANSPORTE->__SET('NUMERO_TRANSPORTE', $NUMERO);
+            $TRANSPORTE->__SET('RUT_TRANSPORTE', 0);
+            $TRANSPORTE->__SET('DV_TRANSPORTE', 0);
+            $TRANSPORTE->__SET('NOMBRE_TRANSPORTE', $NUEVOTRANSPORTE);
+            $TRANSPORTE->__SET('GIRO_TRANSPORTE', '');
+            $TRANSPORTE->__SET('RAZON_SOCIAL_TRANSPORTE', '');
+            $TRANSPORTE->__SET('DIRECCION_TRANSPORTE', '');
+            $TRANSPORTE->__SET('CONTACTO_TRANSPORTE', '');
+            $TRANSPORTE->__SET('TELEFONO_TRANSPORTE', 0);
+            $TRANSPORTE->__SET('EMAIL_TRANSPORTE', '');
+            $TRANSPORTE->__SET('NOTA_TRANSPORTE', 'Registro rápido desde recepción MP');
+            $TRANSPORTE->__SET('ID_EMPRESA', $EMPRESAS);
+            $TRANSPORTE->__SET('ID_USUARIOI', $IDUSUARIOS);
+            $TRANSPORTE->__SET('ID_USUARIOM', $IDUSUARIOS);
+            $TRANSPORTE_ADO->agregarTransporte($TRANSPORTE);
+            $MENSAJEMODAL = "TRANSPORTE_OK";
+        }
+
         $ARRAYTRANSPORTE = $TRANSPORTE_ADO->listarTransportePorEmpresaCBX($EMPRESAS);
-        $MENSAJEMODAL = "TRANSPORTE_OK";
+        foreach ($ARRAYTRANSPORTE as $r) {
+            if ((string)$r['ID_TRANSPORTE'] === (string)$TRANSPORTE) {
+                $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_TRANSPORTE'];
+                break;
+            }
+        }
+        if ($MENSAJEMODAL == "TRANSPORTE_OK") {
+            foreach ($ARRAYTRANSPORTE as $r) {
+                if (strtolower(trim($r['NOMBRE_TRANSPORTE'])) == strtolower($NUEVOTRANSPORTE)) {
+                    $TRANSPORTE = $r['ID_TRANSPORTE'];
+                    $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_TRANSPORTE'];
+                    break;
+                }
+            }
+        }
+        $RESPUESTAAJAXMODAL['estado'] = "OK";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['tipo'] = "TRANSPORTE";
+        $RESPUESTAAJAXMODAL['id'] = $TRANSPORTE;
+        $RESPUESTAAJAXMODAL['detalle'] = '';
+        if ($RESPUESTAAJAXMODAL['nombre'] == "") {
+            $RESPUESTAAJAXMODAL['nombre'] = $NUEVOTRANSPORTE;
+        }
         $NUEVOTRANSPORTE = "";
     }
 }
@@ -263,29 +312,91 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
 
     if ($NUEVOCONDUCTORRUT == "" || $NUEVOCONDUCTORNOMBRE == "") {
         $MENSAJEMODAL = "CONDUCTOR_VACIO";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['detalle'] = 'Debe ingresar rut y nombre del conductor.';
     } else {
-        $ARRAYNUMERO = $CONDUCTOR_ADO->obtenerNumero($EMPRESAS);
-        $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
-        $CONDUCTOR = new CONDUCTOR();
-        $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
-        $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
-        $CONDUCTOR->__SET('DV_CONDUCTOR', 0);
-        $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
-        $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
-        $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
-        $CONDUCTOR->__SET('EMAIL_CONDUCTOR', '');
-        $CONDUCTOR->__SET('ID_EMPRESA', $EMPRESAS);
-        $CONDUCTOR->__SET('ID_USUARIOI', $IDUSUARIOS);
-        $CONDUCTOR->__SET('ID_USUARIOM', $IDUSUARIOS);
-        $CONDUCTOR_ADO->agregarConductor($CONDUCTOR);
+        $RUTLIMPIO = preg_replace('/[^0-9kK]/', '', $NUEVOCONDUCTORRUT);
+        $RUTNUMERICO = preg_replace('/[^0-9]/', '', $RUTLIMPIO);
+        $DVDATO = strtoupper(substr($RUTLIMPIO, -1));
+        if ($RUTNUMERICO == "") {
+            $MENSAJEMODAL = "CONDUCTOR_RUT_INVALIDO";
+            $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+            $RESPUESTAAJAXMODAL['detalle'] = 'El rut del conductor no tiene un formato válido.';
+        } else {
+            $NUEVOCONDUCTORRUT = $RUTNUMERICO;
+            if (!ctype_digit($DVDATO)) {
+                $DVCONDUCTOR = $DVDATO;
+            } else {
+                $DVCONDUCTOR = (int)$DVDATO;
+            }
+        $EXISTECONDUCTOR = "";
+        foreach ($ARRAYCONDUCTOR as $r) {
+            if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
+                $EXISTECONDUCTOR = $r['ID_CONDUCTOR'];
+                break;
+            }
+        }
+
+        if ($EXISTECONDUCTOR != "") {
+            $CONDUCTOR = $EXISTECONDUCTOR;
+            $MENSAJEMODAL = "CONDUCTOR_EXISTE";
+        } else {
+            if ($NUEVOCONDUCTORTELEFONO == "") {
+                $NUEVOCONDUCTORTELEFONO = 0;
+            }
+            $ARRAYNUMERO = $CONDUCTOR_ADO->obtenerNumero($EMPRESAS);
+            $NUMERO = $ARRAYNUMERO[0]['NUMERO'] + 1;
+            $CONDUCTOR = new CONDUCTOR();
+            $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
+            $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
+            $CONDUCTOR->__SET('DV_CONDUCTOR', $DVCONDUCTOR);
+            $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
+            $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
+            $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
+            $CONDUCTOR->__SET('EMAIL_CONDUCTOR', '');
+            $CONDUCTOR->__SET('ID_EMPRESA', $EMPRESAS);
+            $CONDUCTOR->__SET('ID_USUARIOI', $IDUSUARIOS);
+            $CONDUCTOR->__SET('ID_USUARIOM', $IDUSUARIOS);
+            $CONDUCTOR_ADO->agregarConductor($CONDUCTOR);
+            $MENSAJEMODAL = "CONDUCTOR_OK";
+        }
+
         $ARRAYCONDUCTOR = $CONDUCTOR_ADO->listarConductorPorEmpresaCBX($EMPRESAS);
-        $MENSAJEMODAL = "CONDUCTOR_OK";
+        foreach ($ARRAYCONDUCTOR as $r) {
+            if ((string)$r['ID_CONDUCTOR'] === (string)$CONDUCTOR) {
+                $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_CONDUCTOR'];
+                break;
+            }
+        }
+        if ($MENSAJEMODAL == "CONDUCTOR_OK") {
+            foreach ($ARRAYCONDUCTOR as $r) {
+                if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
+                    $CONDUCTOR = $r['ID_CONDUCTOR'];
+                    $RESPUESTAAJAXMODAL['nombre'] = $r['NOMBRE_CONDUCTOR'];
+                    break;
+                }
+            }
+        }
+        $RESPUESTAAJAXMODAL['estado'] = "OK";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['tipo'] = "CONDUCTOR";
+        $RESPUESTAAJAXMODAL['id'] = $CONDUCTOR;
+        $RESPUESTAAJAXMODAL['detalle'] = '';
+        if ($RESPUESTAAJAXMODAL['nombre'] == "") {
+            $RESPUESTAAJAXMODAL['nombre'] = $NUEVOCONDUCTORNOMBRE;
+        }
         $NUEVOCONDUCTORRUT = "";
         $NUEVOCONDUCTORNOMBRE = "";
         $NUEVOCONDUCTORTELEFONO = "";
+        }
     }
 }
 
+if ($ESAJAXMODAL && (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL']) || isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL']))) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($RESPUESTAAJAXMODAL);
+    exit;
+}
 
 $ARRAYFOLIO3 = $FOLIO_ADO->verFolioPorEmpresaPlantaTemporadaTmateriaprima($EMPRESAS, $PLANTAS, $TEMPORADAS);
 if (empty($ARRAYFOLIO3)) {
@@ -918,6 +1029,76 @@ if (isset($_POST)) {
             }
 
             document.addEventListener('DOMContentLoaded', function() {
+                function actualizarSelect(selectId, id, texto) {
+                    var $select = $('#' + selectId);
+                    if (!$select.length) {
+                        return;
+                    }
+                    if ($select.find('option[value="' + id + '"]').length === 0) {
+                        $select.append(new Option(texto, id, true, true));
+                    }
+                    $select.val(id).trigger('change');
+                }
+
+                function enviarModalAjax(formId, selectId, modalId) {
+                    var $form = $('#' + formId);
+                    if (!$form.length) {
+                        return;
+                    }
+
+                    $form.on('submit', function(e) {
+                        e.preventDefault();
+                        $.ajax({
+                            type: 'POST',
+                            url: window.location.href,
+                            data: $form.serialize(),
+                            dataType: 'json'
+                        }).done(function(resp) {
+                            if (!resp) {
+                                Swal.fire({icon: 'error', title: 'Error', text: 'No hubo respuesta del servidor.'});
+                                return;
+                            }
+                            if (resp.estado !== 'OK') {
+                                Swal.fire({icon: 'error', title: 'Error al guardar', text: resp.detalle || resp.mensaje || 'No fue posible guardar la información.'});
+                                return;
+                            }
+
+                            if (resp.id) {
+                                actualizarSelect(selectId, resp.id, resp.nombre || resp.id);
+                            }
+                            $('#' + modalId).modal('hide');
+                            $form[0].reset();
+
+                            if (resp.mensaje === 'TRANSPORTE_OK') {
+                                Swal.fire({icon: 'success', title: 'Transporte agregado', text: 'Se agregó correctamente el transporte.'});
+                            } else if (resp.mensaje === 'CONDUCTOR_OK') {
+                                Swal.fire({icon: 'success', title: 'Conductor agregado', text: 'Se agregó correctamente el conductor.'});
+                            } else if (resp.mensaje === 'TRANSPORTE_EXISTE') {
+                                Swal.fire({icon: 'info', title: 'Transporte existente', text: 'El transporte ya estaba registrado y se seleccionó en la lista.'});
+                            } else if (resp.mensaje === 'CONDUCTOR_EXISTE') {
+                                Swal.fire({icon: 'info', title: 'Conductor existente', text: 'El conductor ya estaba registrado y se seleccionó en la lista.'});
+                            } else if (resp.mensaje === 'TRANSPORTE_VACIO') {
+                                Swal.fire({icon: 'warning', title: 'Dato requerido', text: 'Debe ingresar el nombre del transporte.'});
+                                $('#' + modalId).modal('show');
+                            } else if (resp.mensaje === 'CONDUCTOR_VACIO') {
+                                Swal.fire({icon: 'warning', title: 'Datos requeridos', text: 'Debe ingresar rut y nombre del conductor.'});
+                                $('#' + modalId).modal('show');
+                            }
+                        }).fail(function(xhr) {
+                            var detalleError = 'No fue posible guardar la información.';
+                            if (xhr && xhr.responseJSON && xhr.responseJSON.detalle) {
+                                detalleError = xhr.responseJSON.detalle;
+                            } else if (xhr && xhr.responseText) {
+                                detalleError = xhr.responseText.replace(/<[^>]*>?/gm, '').trim().substring(0, 250) || detalleError;
+                            }
+                            Swal.fire({icon: 'error', title: 'Error al guardar', text: detalleError});
+                        });
+                    });
+                }
+
+                enviarModalAjax('formModalTransporte', 'TRANSPORTE', 'modalAgregarTransporte');
+                enviarModalAjax('formModalConductor', 'CONDUCTOR', 'modalAgregarConductor');
+
                 var mensajeModal = '<?php echo $MENSAJEMODAL; ?>';
                 if (mensajeModal === 'TRANSPORTE_OK') {
                     Swal.fire({
@@ -931,6 +1112,20 @@ if (isset($_POST)) {
                         icon: 'success',
                         title: 'Conductor agregado',
                         text: 'Se agregó correctamente el conductor.'
+                    });
+                }
+                if (mensajeModal === 'TRANSPORTE_EXISTE') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Transporte existente',
+                        text: 'El transporte ya estaba registrado y se seleccionó en la lista.'
+                    });
+                }
+                if (mensajeModal === 'CONDUCTOR_EXISTE') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Conductor existente',
+                        text: 'El conductor ya estaba registrado y se seleccionó en la lista.'
                     });
                 }
                 if (mensajeModal === 'TRANSPORTE_VACIO') {
@@ -1355,55 +1550,61 @@ if (isset($_POST)) {
 
                         <div class="modal fade" id="modalAgregarTransporte" tabindex="-1" role="dialog" aria-labelledby="modalAgregarTransporteLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-success">
-                                        <h5 class="modal-title text-white" id="modalAgregarTransporteLabel">Agregar Transporte</h5>
-                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label for="NUEVOTRANSPORTE">Nombre</label>
-                                            <input type="text" class="form-control" id="NUEVOTRANSPORTE" name="NUEVOTRANSPORTE" value="<?php echo $NUEVOTRANSPORTE; ?>" placeholder="Nombre Transporte" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                <form method="post" role="form" id="formModalTransporte">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success">
+                                            <h5 class="modal-title text-white" id="modalAgregarTransporteLabel">Agregar Transporte</h5>
+                                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="hidden" name="AJAX_MODAL" value="1" />
+                                            <div class="form-group">
+                                                <label for="NUEVOTRANSPORTE">Nombre</label>
+                                                <input type="text" class="form-control" id="NUEVOTRANSPORTE" name="NUEVOTRANSPORTE" value="<?php echo $NUEVOTRANSPORTE; ?>" placeholder="Nombre Transporte" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-success" name="AGREGAR_TRANSPORTE_MODAL" value="AGREGAR_TRANSPORTE_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-success" name="AGREGAR_TRANSPORTE_MODAL" value="AGREGAR_TRANSPORTE_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
 
                         <div class="modal fade" id="modalAgregarConductor" tabindex="-1" role="dialog" aria-labelledby="modalAgregarConductorLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-success">
-                                        <h5 class="modal-title text-white" id="modalAgregarConductorLabel">Agregar Conductor</h5>
-                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label for="NUEVOCONDUCTORRUT">Rut</label>
-                                            <input type="text" class="form-control" id="NUEVOCONDUCTORRUT" name="NUEVOCONDUCTORRUT" value="<?php echo $NUEVOCONDUCTORRUT; ?>" placeholder="Rut Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                <form method="post" role="form" id="formModalConductor">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success">
+                                            <h5 class="modal-title text-white" id="modalAgregarConductorLabel">Agregar Conductor</h5>
+                                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="NUEVOCONDUCTORNOMBRE">Nombre</label>
-                                            <input type="text" class="form-control" id="NUEVOCONDUCTORNOMBRE" name="NUEVOCONDUCTORNOMBRE" value="<?php echo $NUEVOCONDUCTORNOMBRE; ?>" placeholder="Nombre Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        <div class="modal-body">
+                                            <input type="hidden" name="AJAX_MODAL" value="1" />
+                                            <div class="form-group">
+                                                <label for="NUEVOCONDUCTORRUT">Rut</label>
+                                                <input type="text" class="form-control" id="NUEVOCONDUCTORRUT" name="NUEVOCONDUCTORRUT" value="<?php echo $NUEVOCONDUCTORRUT; ?>" placeholder="Rut Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="NUEVOCONDUCTORNOMBRE">Nombre</label>
+                                                <input type="text" class="form-control" id="NUEVOCONDUCTORNOMBRE" name="NUEVOCONDUCTORNOMBRE" value="<?php echo $NUEVOCONDUCTORNOMBRE; ?>" placeholder="Nombre Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="NUEVOCONDUCTORTELEFONO">Teléfono</label>
+                                                <input type="text" class="form-control" id="NUEVOCONDUCTORTELEFONO" name="NUEVOCONDUCTORTELEFONO" value="<?php echo $NUEVOCONDUCTORTELEFONO; ?>" placeholder="Teléfono Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="NUEVOCONDUCTORTELEFONO">Teléfono</label>
-                                            <input type="text" class="form-control" id="NUEVOCONDUCTORTELEFONO" name="NUEVOCONDUCTORTELEFONO" value="<?php echo $NUEVOCONDUCTORTELEFONO; ?>" placeholder="Teléfono Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-success" name="AGREGAR_CONDUCTOR_MODAL" value="AGREGAR_CONDUCTOR_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-success" name="AGREGAR_CONDUCTOR_MODAL" value="AGREGAR_CONDUCTOR_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                         
