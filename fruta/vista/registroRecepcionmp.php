@@ -214,13 +214,20 @@ function filtrarRegistrosHabilitados($arreglo)
             return false;
         }
 
+        $estadoRegistro = null;
+
         foreach ($registro as $columna => $valor) {
-            if (stripos($columna, 'ESTADO') !== false) {
-                return (string)$valor === '1';
+            if (strtoupper($columna) === 'ESTADO_REGISTRO') {
+                $estadoRegistro = $valor;
+                break;
             }
         }
 
-        return true;
+        if ($estadoRegistro === null) {
+            return true;
+        }
+
+        return (int)$estadoRegistro === 1;
     }));
 }
 
