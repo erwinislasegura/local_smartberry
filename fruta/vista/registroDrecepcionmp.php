@@ -235,10 +235,22 @@ if (isset($_GET["ad"])) {
     $acciond_dato = "";
 }
 
+$EMPRESAOPERACION = $EMPRESAS;
+$PLANTAOPERACION = $PLANTAS;
+$TEMPORADAOPERACION = $TEMPORADAS;
+if (isset($_REQUEST['EMPRESA']) && $_REQUEST['EMPRESA'] != "") {
+    $EMPRESAOPERACION = $_REQUEST['EMPRESA'];
+}
+if (isset($_REQUEST['PLANTA']) && $_REQUEST['PLANTA'] != "") {
+    $PLANTAOPERACION = $_REQUEST['PLANTA'];
+}
+if (isset($_REQUEST['TEMPORADA']) && $_REQUEST['TEMPORADA'] != "") {
+    $TEMPORADAOPERACION = $_REQUEST['TEMPORADA'];
+}
 
 //OPERACION PARA OBTENER EL ID RECEPCION Y FOLIO BASE, SOLO SE OCUPA PARA CREAR UN REGISTRO NUEVO
 //OBTENCION DE DATOS ENVIADOR A LA URL
-if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato)) {
+if ($id_dato !== "" && $accion_dato !== "" && $urlo_dato !== "") {
     $IDP = $id_dato;
     $OPP = $accion_dato;
     $URLO = $urlo_dato;
@@ -269,7 +281,7 @@ if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato)) {
 }
 //OBTENCION DE DATOS ENVIADOR A LA URL
 //PARA OPERACIONES DE EDICION , VISUALIZACION Y CREACION
-if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato) && isset($idd_dato) && isset($acciond_dato)) {
+if ($id_dato !== "" && $accion_dato !== "" && $urlo_dato !== "" && $idd_dato !== "" && $acciond_dato !== "") {
     //ALMACENAR DATOS DE VARIABLES DE LA URL
     $IDOP = $idd_dato;
     $OP = $acciond_dato;
@@ -539,6 +551,52 @@ if ($_POST) {
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
+        <style>
+            /* sistemRR: estilo visual (campos redondeados + formato compacto) */
+            #form_reg_dato .form-control,
+            #form_reg_dato .select2-container--default .select2-selection--single,
+            #form_reg_dato .select2-container--default .select2-selection--multiple {
+                border-radius: 14px !important;
+                min-height: 34px !important;
+                height: 34px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato textarea.form-control {
+                min-height: 68px !important;
+                height: auto !important;
+                border-radius: 14px !important;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .form-group {
+                margin-bottom: 10px;
+            }
+
+            #form_reg_dato label {
+                margin-bottom: 4px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .select2-container .select2-selection--single .select2-selection__rendered {
+                line-height: 32px !important;
+                padding-left: 12px;
+                font-size: 12px;
+            }
+
+            #form_reg_dato .select2-container .select2-selection--single .select2-selection__arrow {
+                height: 32px !important;
+            }
+
+            #form_reg_dato .btn {
+                border-radius: 14px !important;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                min-height: 34px;
+            }
+        </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 //VALIDACION DE FORMULARIO
@@ -1100,7 +1158,7 @@ if ($_POST) {
             $idExistenciaLiberar = $_REQUEST['LIBERARIDEXISTENCIA'] ?? '';
             $idRecepcionLiberar = $_REQUEST['LIBERARIDRECEPCION'] ?? '';
 
-            $ARRAYFOLIOINACTIVO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($folioLiberado, $_REQUEST['EMPRESA'], $_REQUEST['TEMPORADA']);
+            $ARRAYFOLIOINACTIVO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($folioLiberado, $EMPRESAOPERACION, $TEMPORADAOPERACION);
 
             $detallesExistencia = $EXIMATERIAPRIMA_ADO->verEximateriaprima($idExistenciaLiberar);
             $detallesRecepcionLiberada = $RECEPCIONMP_ADO->verRecepcion($idRecepcionLiberar);
@@ -1182,7 +1240,7 @@ if ($_POST) {
         if (isset($_REQUEST['CREAR'])) {
 
             //CONSULTA PARA OBTENER DATOS BASE PARA EL CALCULO DEL NUMEOR DE FOLIO Y NUMERO LINEA
-            $ARRAYVERFOLIO = $FOLIO_ADO->verFolioPorEmpresaPlantaTemporadaTmateriaprima($_REQUEST['EMPRESA'], $_REQUEST['PLANTA'], $_REQUEST['TEMPORADA']);
+            $ARRAYVERFOLIO = $FOLIO_ADO->verFolioPorEmpresaPlantaTemporadaTmateriaprima($EMPRESAOPERACION, $PLANTAOPERACION, $TEMPORADAOPERACION);
             $FOLIO = $ARRAYVERFOLIO[0]['ID_FOLIO'];
             if (isset($_REQUEST['FOLIOMANUAL'])) {
                 $FOLIOMANUAL = $_REQUEST['FOLIOMANUAL'];
@@ -1190,7 +1248,7 @@ if ($_POST) {
             if ($FOLIOMANUAL == "on") {
                 $NUMEROFOLIODRECEPCION = $_REQUEST['NUMEROFOLIODRECEPCION'];
                 $FOLIOMANUALR = "1";
-                $ARRAYFOLIOPOEXPO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($NUMEROFOLIODRECEPCION, $_REQUEST['EMPRESA'], $_REQUEST['TEMPORADA']);
+                $ARRAYFOLIOPOEXPO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($NUMEROFOLIODRECEPCION, $EMPRESAOPERACION, $TEMPORADAOPERACION);
                 if ($ARRAYFOLIOPOEXPO) {
                     $ARRAYDETALLESRECEPCION = $RECEPCIONMP_ADO->verRecepcion($ARRAYFOLIOPOEXPO[0]['ID_RECEPCION']);
                     $NUMERORECEPCIONDETALLE = $ARRAYDETALLESRECEPCION ? $ARRAYDETALLESRECEPCION[0]['NUMERO_RECEPCION'] : $ARRAYFOLIOPOEXPO[0]['ID_RECEPCION'];
@@ -1271,9 +1329,9 @@ if ($_POST) {
                     $FOLIOMATERIAPRIMA = $ARRAYVERFOLIO[0]['NUMERO_FOLIO'];
                 }
                 $NUMEROFOLIODRECEPCION = $FOLIOMATERIAPRIMA + 1;
-                $ARRAYFOLIOPOEXPO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($NUMEROFOLIODRECEPCION, $_REQUEST['EMPRESA'], $_REQUEST['TEMPORADA']);
+                $ARRAYFOLIOPOEXPO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($NUMEROFOLIODRECEPCION, $EMPRESAOPERACION, $TEMPORADAOPERACION);
                 while (count($ARRAYFOLIOPOEXPO) == 1) {
-                    $ARRAYFOLIOPOEXPO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($NUMEROFOLIODRECEPCION, $_REQUEST['EMPRESA'], $_REQUEST['TEMPORADA']);
+                    $ARRAYFOLIOPOEXPO = $EXIMATERIAPRIMA_ADO->buscarPorFolio($NUMEROFOLIODRECEPCION, $EMPRESAOPERACION, $TEMPORADAOPERACION);
                     if (count($ARRAYFOLIOPOEXPO) == 1) {
                         $NUMEROFOLIODRECEPCION += 1;
                     }
@@ -1298,7 +1356,7 @@ if ($_POST) {
             if ($SINO == "0") {
 
                 $FOLIOALIASESTACTICO = $NUMEROFOLIODRECEPCION;
-                $FOLIOALIASDIANAMICO = "EMPRESA:" . $_REQUEST['EMPRESA'] . "_PLANTA:" . $_REQUEST['PLANTA'] . "_TEMPORADA:" . $_REQUEST['TEMPORADA'] .
+                $FOLIOALIASDIANAMICO = "EMPRESA:" . $EMPRESAOPERACION . "_PLANTA:" . $PLANTAOPERACION . "_TEMPORADA:" . $TEMPORADAOPERACION .
                     "_TIPO_FOLIO:MATERIA PRIMA_RECEPCION:" . $_REQUEST['IDP'] . "_FOLIO:" . $NUMEROFOLIODRECEPCION;
     
     
@@ -1378,9 +1436,9 @@ if ($_POST) {
                 $EXIMATERIAPRIMA->__SET('ID_PRODUCTOR', $_REQUEST['PRODUCTOR']);
                 $EXIMATERIAPRIMA->__SET('ID_VESPECIES', $_REQUEST['VESPECIES']);
                 $EXIMATERIAPRIMA->__SET('ID_RECEPCION', $_REQUEST['IDP']);
-                $EXIMATERIAPRIMA->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
-                $EXIMATERIAPRIMA->__SET('ID_PLANTA', $_REQUEST['PLANTA']);
-                $EXIMATERIAPRIMA->__SET('ID_TEMPORADA', $_REQUEST['TEMPORADA']);
+                $EXIMATERIAPRIMA->__SET('ID_EMPRESA', $EMPRESAOPERACION);
+                $EXIMATERIAPRIMA->__SET('ID_PLANTA', $PLANTAOPERACION);
+                $EXIMATERIAPRIMA->__SET('ID_TEMPORADA', $TEMPORADAOPERACION);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
                 $EXIMATERIAPRIMA_ADO->agregarEximateriaprimaRecepcion($EXIMATERIAPRIMA);
 
@@ -1471,9 +1529,9 @@ if ($_POST) {
                 $EXIMATERIAPRIMA->__SET('ID_PRODUCTOR', $_REQUEST['PRODUCTOR']);
                 $EXIMATERIAPRIMA->__SET('ID_VESPECIES', $_REQUEST['VESPECIES']);
                 $EXIMATERIAPRIMA->__SET('ID_RECEPCION', $_REQUEST['IDP']);
-                $EXIMATERIAPRIMA->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
-                $EXIMATERIAPRIMA->__SET('ID_PLANTA', $_REQUEST['PLANTA']);
-                $EXIMATERIAPRIMA->__SET('ID_TEMPORADA', $_REQUEST['TEMPORADA']);
+                $EXIMATERIAPRIMA->__SET('ID_EMPRESA', $EMPRESAOPERACION);
+                $EXIMATERIAPRIMA->__SET('ID_PLANTA', $PLANTAOPERACION);
+                $EXIMATERIAPRIMA->__SET('ID_TEMPORADA', $TEMPORADAOPERACION);
                 $EXIMATERIAPRIMA->__SET('ID_EXIMATERIAPRIMA', $ARRAYVERFOLIOEXISTENCIA[0]["ID_EXIMATERIAPRIMA"]);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
                 $EXIMATERIAPRIMA_ADO->actualizarEximateriaprimaRecepcion($EXIMATERIAPRIMA);
@@ -1483,7 +1541,7 @@ if ($_POST) {
             } else {
                 $NUMEROFOLIODRECEPCION = $_REQUEST["NUMEROFOLIODRECEPCIONE"];
                 $FOLIOALIASESTACTICO = $NUMEROFOLIODRECEPCION;
-                $FOLIOALIASDIANAMICO = "EMPRESA:" . $_REQUEST['EMPRESA'] . "_PLANTA:" . $_REQUEST['PLANTA'] . "_TEMPORADA:" . $_REQUEST['TEMPORADA'] .
+                $FOLIOALIASDIANAMICO = "EMPRESA:" . $EMPRESAOPERACION . "_PLANTA:" . $PLANTAOPERACION . "_TEMPORADA:" . $TEMPORADAOPERACION .
                     "_TIPO_FOLIO:MATERIA PRIMA_RECEPCION:" . $_REQUEST['IDP'] . "_FOLIO:" . $NUMEROFOLIODRECEPCION;
                 if ($_REQUEST["FOLIOMANUAL"] != "on") {
                     $FOLIOMANUALR = "0";
@@ -1516,9 +1574,9 @@ if ($_POST) {
                 $EXIMATERIAPRIMA->__SET('ID_PRODUCTOR', $_REQUEST['PRODUCTOR']);
                 $EXIMATERIAPRIMA->__SET('ID_VESPECIES', $_REQUEST['VESPECIES']);
                 $EXIMATERIAPRIMA->__SET('ID_RECEPCION', $_REQUEST['IDP']);
-                $EXIMATERIAPRIMA->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
-                $EXIMATERIAPRIMA->__SET('ID_PLANTA', $_REQUEST['PLANTA']);
-                $EXIMATERIAPRIMA->__SET('ID_TEMPORADA', $_REQUEST['TEMPORADA']);
+                $EXIMATERIAPRIMA->__SET('ID_EMPRESA', $EMPRESAOPERACION);
+                $EXIMATERIAPRIMA->__SET('ID_PLANTA', $PLANTAOPERACION);
+                $EXIMATERIAPRIMA->__SET('ID_TEMPORADA', $TEMPORADAOPERACION);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
                 $EXIMATERIAPRIMA_ADO->agregarEximateriaprimaRecepcion($EXIMATERIAPRIMA);
 
