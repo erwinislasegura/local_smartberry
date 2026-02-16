@@ -1560,6 +1560,7 @@ if (isset($_POST)) {
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="AJAX_MODAL" value="1" />
+                                            <input type="hidden" name="AGREGAR_TRANSPORTE_MODAL" value="AGREGAR_TRANSPORTE_MODAL" />
                                             <div class="form-group">
                                                 <label for="NUEVOTRANSPORTE">Nombre</label>
                                                 <input type="text" class="form-control" id="NUEVOTRANSPORTE" name="NUEVOTRANSPORTE" value="<?php echo $NUEVOTRANSPORTE; ?>" placeholder="Nombre Transporte" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
@@ -1586,6 +1587,7 @@ if (isset($_POST)) {
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="AJAX_MODAL" value="1" />
+                                            <input type="hidden" name="AGREGAR_CONDUCTOR_MODAL" value="AGREGAR_CONDUCTOR_MODAL" />
                                             <div class="form-group">
                                                 <label for="NUEVOCONDUCTORRUT">Rut</label>
                                                 <input type="text" class="form-control" id="NUEVOCONDUCTORRUT" name="NUEVOCONDUCTORRUT" value="<?php echo $NUEVOCONDUCTORRUT; ?>" placeholder="Rut Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
