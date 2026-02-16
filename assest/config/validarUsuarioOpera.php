@@ -34,14 +34,14 @@
     $PESTAEXISTENCIA="";
     $PESTAPRODUCTOR="";
     
-    include_once '../../assest/controlador/USUARIO_ADO.php';
-    include_once '../../assest/controlador/TUSUARIO_ADO.php';
-    include_once '../../assest/controlador/PTUSUARIO_ADO.php';
-    include_once "../../assest/controlador/AUSUARIO_ADO.php";
+    include_once __DIR__ . '/../controlador/USUARIO_ADO.php';
+    include_once __DIR__ . '/../controlador/TUSUARIO_ADO.php';
+    include_once __DIR__ . '/../controlador/PTUSUARIO_ADO.php';
+    include_once __DIR__ . "/../controlador/AUSUARIO_ADO.php";
 
-    include_once '../../assest/controlador/EMPRESA_ADO.php';
-    include_once '../../assest/controlador/PLANTA_ADO.php';
-    include_once '../../assest/controlador/TEMPORADA_ADO.php';
+    include_once __DIR__ . '/../controlador/EMPRESA_ADO.php';
+    include_once __DIR__ . '/../controlador/PLANTA_ADO.php';
+    include_once __DIR__ . '/../controlador/TEMPORADA_ADO.php';
 
 
     $USUARIO_ADO = new USUARIO_ADO();

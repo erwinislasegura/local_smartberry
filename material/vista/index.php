@@ -1,10 +1,11 @@
 <?php
-include_once "../../assest/config/validarUsuarioMaterial.php";
+$rootPath = __DIR__ . "/../../";
+include_once $rootPath . "assest/config/validarUsuarioMaterial.php";
 
 
 
 //LLAMADA ARCHIVOS NECESARIOS PARA LAS OPERACIONES
-include_once "../../assest/controlador/CONSULTA_ADO.php";
+include_once $rootPath . "assest/controlador/CONSULTA_ADO.php";
 
 
 //INICIALIZAR CONTROLADOR
@@ -31,7 +32,7 @@ if($ARRAYREGISTROSABIERTOS){
 
 
 
-include_once "../../assest/config/ValidardatosUrl.php";
+include_once $rootPath . "assest/config/ValidardatosUrl.php";
 
 ?>
 
@@ -46,7 +47,7 @@ include_once "../../assest/config/ValidardatosUrl.php";
     <meta name="description" content="">
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
-        <?php include_once "../../assest/config/urlHead.php"; ?>
+        <?php include_once $rootPath . "assest/config/urlHead.php"; ?>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -59,7 +60,7 @@ include_once "../../assest/config/ValidardatosUrl.php";
 
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
-        <?php include_once "../../assest/config/menuMaterial.php"; ?>
+        <?php include_once $rootPath . "assest/config/menuMaterial.php"; ?>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <div class="container-full">
@@ -77,7 +78,7 @@ include_once "../../assest/config/ValidardatosUrl.php";
                                 </nav>
                             </div>
                         </div>
-                        <?php include_once "../../assest/config/verIndicadorEconomico.php"; ?>
+                        <?php include_once $rootPath . "assest/config/verIndicadorEconomico.php"; ?>
                     </div>
                 </div>
                 <section class="content">
@@ -153,9 +154,9 @@ include_once "../../assest/config/ValidardatosUrl.php";
             </div>
         </div>
         <!- LLAMADA ARCHIVO DEL DISEÑO DEL FOOTER Y MENU USUARIO -!>
-            <?php include_once "../../assest/config/footer.php"; ?>
-            <?php include_once "../../assest/config/menuExtraMaterial.php"; ?>
+            <?php include_once $rootPath . "assest/config/footer.php"; ?>
+            <?php include_once $rootPath . "assest/config/menuExtraMaterial.php"; ?>
     </div>
-    <?php include_once "../../assest/config/urlBase.php"; ?>
+    <?php include_once $rootPath . "assest/config/urlBase.php"; ?>
 </body>
 </html>
