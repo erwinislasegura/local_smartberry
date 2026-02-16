@@ -1355,55 +1355,59 @@ if (isset($_POST)) {
 
                         <div class="modal fade" id="modalAgregarTransporte" tabindex="-1" role="dialog" aria-labelledby="modalAgregarTransporteLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-success">
-                                        <h5 class="modal-title text-white" id="modalAgregarTransporteLabel">Agregar Transporte</h5>
-                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label for="NUEVOTRANSPORTE">Nombre</label>
-                                            <input type="text" class="form-control" id="NUEVOTRANSPORTE" name="NUEVOTRANSPORTE" value="<?php echo $NUEVOTRANSPORTE; ?>" placeholder="Nombre Transporte" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                <form method="post" role="form">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success">
+                                            <h5 class="modal-title text-white" id="modalAgregarTransporteLabel">Agregar Transporte</h5>
+                                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="NUEVOTRANSPORTE">Nombre</label>
+                                                <input type="text" class="form-control" id="NUEVOTRANSPORTE" name="NUEVOTRANSPORTE" value="<?php echo $NUEVOTRANSPORTE; ?>" placeholder="Nombre Transporte" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-success" name="AGREGAR_TRANSPORTE_MODAL" value="AGREGAR_TRANSPORTE_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-success" name="AGREGAR_TRANSPORTE_MODAL" value="AGREGAR_TRANSPORTE_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
 
                         <div class="modal fade" id="modalAgregarConductor" tabindex="-1" role="dialog" aria-labelledby="modalAgregarConductorLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-success">
-                                        <h5 class="modal-title text-white" id="modalAgregarConductorLabel">Agregar Conductor</h5>
-                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label for="NUEVOCONDUCTORRUT">Rut</label>
-                                            <input type="text" class="form-control" id="NUEVOCONDUCTORRUT" name="NUEVOCONDUCTORRUT" value="<?php echo $NUEVOCONDUCTORRUT; ?>" placeholder="Rut Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                <form method="post" role="form">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success">
+                                            <h5 class="modal-title text-white" id="modalAgregarConductorLabel">Agregar Conductor</h5>
+                                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="NUEVOCONDUCTORNOMBRE">Nombre</label>
-                                            <input type="text" class="form-control" id="NUEVOCONDUCTORNOMBRE" name="NUEVOCONDUCTORNOMBRE" value="<?php echo $NUEVOCONDUCTORNOMBRE; ?>" placeholder="Nombre Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="NUEVOCONDUCTORRUT">Rut</label>
+                                                <input type="text" class="form-control" id="NUEVOCONDUCTORRUT" name="NUEVOCONDUCTORRUT" value="<?php echo $NUEVOCONDUCTORRUT; ?>" placeholder="Rut Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="NUEVOCONDUCTORNOMBRE">Nombre</label>
+                                                <input type="text" class="form-control" id="NUEVOCONDUCTORNOMBRE" name="NUEVOCONDUCTORNOMBRE" value="<?php echo $NUEVOCONDUCTORNOMBRE; ?>" placeholder="Nombre Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="NUEVOCONDUCTORTELEFONO">Teléfono</label>
+                                                <input type="text" class="form-control" id="NUEVOCONDUCTORTELEFONO" name="NUEVOCONDUCTORTELEFONO" value="<?php echo $NUEVOCONDUCTORTELEFONO; ?>" placeholder="Teléfono Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="NUEVOCONDUCTORTELEFONO">Teléfono</label>
-                                            <input type="text" class="form-control" id="NUEVOCONDUCTORTELEFONO" name="NUEVOCONDUCTORTELEFONO" value="<?php echo $NUEVOCONDUCTORTELEFONO; ?>" placeholder="Teléfono Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-success" name="AGREGAR_CONDUCTOR_MODAL" value="AGREGAR_CONDUCTOR_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-success" name="AGREGAR_CONDUCTOR_MODAL" value="AGREGAR_CONDUCTOR_MODAL" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>Guardar</button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                         
