@@ -88,7 +88,7 @@ function h($string) {
     }
   </style>
 </head>
-<body>
+<body class="sistemRR">
   <div class="container">
     <div class="left-panel">
       <div class="logo">

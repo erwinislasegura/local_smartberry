@@ -78,7 +78,7 @@ function h($string) {
     }
   </style>
 </head>
-<body>
+<body class="sistemRR">
   <div class="container">
     <!-- Panel izquierdo -->
     <div class="left-panel">

@@ -562,7 +562,7 @@ if (isset($_REQUEST['CAMBIAR'])) {
     </script>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary">
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR">
     <div class="wrapper">
         <?php include_once "../../assest/config/menuFruta.php"; ?>
         <div class="content-wrapper">

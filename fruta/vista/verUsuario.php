@@ -178,7 +178,7 @@ if (isset($NOMBREUSUARIOS)) {
                 }
             </script>
 </head>
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA-!>
             <?php include_once "../../assest/config/menuFruta.php"; ?>

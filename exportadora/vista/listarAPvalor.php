@@ -134,7 +134,7 @@ include_once "../../assest/config/datosUrLAP.php";
             </script>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary">
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR">
     <div class="wrapper">
         <?php include_once "../../assest/config/menuExpo.php"; ?>
         <!-- Content Wrapper. Contains page content -->

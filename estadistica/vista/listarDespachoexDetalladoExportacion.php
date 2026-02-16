@@ -105,7 +105,7 @@ $MAP_RECEPCION_MP_REEMBALAJE = $DATA_EXPORTACION['map_recepcion_mp_reembalaje'];
     </script>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary">
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary sistemRR">
     <div class="wrapper">
         <?php include_once "../../assest/config/menuOpera.php"; ?>
         <!-- Content Wrapper. Contains page content -->

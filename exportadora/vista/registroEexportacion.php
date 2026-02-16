@@ -534,7 +534,7 @@ if (isset($id_dato) && isset($accion_dato)) {
 
 </head>
 
-<body class="hold-transition light-skin  sidebar-mini theme-primary" >
+<body class="hold-transition light-skin  sidebar-mini theme-primary sistemRR" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA-!>
             <?php include_once "../../assest/config/menuExpo.php"; ?>
