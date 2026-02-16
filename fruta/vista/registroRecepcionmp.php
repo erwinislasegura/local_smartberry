@@ -233,13 +233,16 @@ $RESPUESTAAJAXMODAL = array(
     'mensaje' => '',
     'tipo' => '',
     'id' => '',
-    'nombre' => ''
+    'nombre' => '',
+    'detalle' => ''
 );
 
 if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
     $NUEVOTRANSPORTE = trim($_REQUEST['NUEVOTRANSPORTE']);
     if ($NUEVOTRANSPORTE == "") {
         $MENSAJEMODAL = "TRANSPORTE_VACIO";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['detalle'] = 'Debe ingresar el nombre del transporte.';
     } else {
         $EXISTETRANSPORTE = "";
         foreach ($ARRAYTRANSPORTE as $r) {
@@ -294,6 +297,7 @@ if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
         $RESPUESTAAJAXMODAL['tipo'] = "TRANSPORTE";
         $RESPUESTAAJAXMODAL['id'] = $TRANSPORTE;
+        $RESPUESTAAJAXMODAL['detalle'] = '';
         if ($RESPUESTAAJAXMODAL['nombre'] == "") {
             $RESPUESTAAJAXMODAL['nombre'] = $NUEVOTRANSPORTE;
         }
@@ -308,7 +312,16 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
 
     if ($NUEVOCONDUCTORRUT == "" || $NUEVOCONDUCTORNOMBRE == "") {
         $MENSAJEMODAL = "CONDUCTOR_VACIO";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['detalle'] = 'Debe ingresar rut y nombre del conductor.';
     } else {
+        $RUTNUMERICO = preg_replace('/[^0-9]/', '', $NUEVOCONDUCTORRUT);
+        if ($RUTNUMERICO == "") {
+            $MENSAJEMODAL = "CONDUCTOR_RUT_INVALIDO";
+            $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+            $RESPUESTAAJAXMODAL['detalle'] = 'El rut del conductor debe contener números.';
+        } else {
+            $NUEVOCONDUCTORRUT = $RUTNUMERICO;
         $EXISTECONDUCTOR = "";
         foreach ($ARRAYCONDUCTOR as $r) {
             if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
@@ -321,6 +334,7 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
             $CONDUCTOR = $EXISTECONDUCTOR;
             $MENSAJEMODAL = "CONDUCTOR_EXISTE";
         } else {
+            $NUEVOCONDUCTORTELEFONO = preg_replace('/[^0-9]/', '', $NUEVOCONDUCTORTELEFONO);
             if ($NUEVOCONDUCTORTELEFONO == "") {
                 $NUEVOCONDUCTORTELEFONO = 0;
             }
@@ -361,12 +375,14 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
         $RESPUESTAAJAXMODAL['tipo'] = "CONDUCTOR";
         $RESPUESTAAJAXMODAL['id'] = $CONDUCTOR;
+        $RESPUESTAAJAXMODAL['detalle'] = '';
         if ($RESPUESTAAJAXMODAL['nombre'] == "") {
             $RESPUESTAAJAXMODAL['nombre'] = $NUEVOCONDUCTORNOMBRE;
         }
         $NUEVOCONDUCTORRUT = "";
         $NUEVOCONDUCTORNOMBRE = "";
         $NUEVOCONDUCTORTELEFONO = "";
+        }
     }
 }
 
@@ -1018,6 +1034,26 @@ if (isset($_POST)) {
                     $select.val(id).trigger('change');
                 }
 
+                function obtenerJsonDesdeRespuesta(texto) {
+                    if (typeof texto !== 'string') {
+                        return null;
+                    }
+                    try {
+                        return JSON.parse(texto);
+                    } catch (e) {
+                        var inicio = texto.indexOf('{');
+                        var fin = texto.lastIndexOf('}');
+                        if (inicio !== -1 && fin !== -1 && fin > inicio) {
+                            try {
+                                return JSON.parse(texto.substring(inicio, fin + 1));
+                            } catch (e2) {
+                                return null;
+                            }
+                        }
+                        return null;
+                    }
+                }
+
                 function enviarModalAjax(formId, selectId, modalId) {
                     var $form = $('#' + formId);
                     if (!$form.length) {
@@ -1030,10 +1066,16 @@ if (isset($_POST)) {
                             type: 'POST',
                             url: window.location.href,
                             data: $form.serialize(),
-                            dataType: 'json'
-                        }).done(function(resp) {
-                            if (!resp || resp.estado !== 'OK') {
-                                Swal.fire({icon: 'error', title: 'Error', text: 'No fue posible guardar la información.'});
+                            dataType: 'text'
+                        }).done(function(respText) {
+                            var resp = obtenerJsonDesdeRespuesta(respText);
+                            if (!resp) {
+                                var detalleNoJson = (respText || '').replace(/<[^>]*>?/gm, '').trim().substring(0, 250);
+                                Swal.fire({icon: 'error', title: 'Error', text: detalleNoJson || 'No hubo respuesta válida del servidor.'});
+                                return;
+                            }
+                            if (resp.estado !== 'OK') {
+                                Swal.fire({icon: 'error', title: 'Error al guardar', text: resp.detalle || resp.mensaje || 'No fue posible guardar la información.'});
                                 return;
                             }
 
@@ -1058,8 +1100,14 @@ if (isset($_POST)) {
                                 Swal.fire({icon: 'warning', title: 'Datos requeridos', text: 'Debe ingresar rut y nombre del conductor.'});
                                 $('#' + modalId).modal('show');
                             }
-                        }).fail(function() {
-                            Swal.fire({icon: 'error', title: 'Error', text: 'No fue posible guardar la información.'});
+                        }).fail(function(xhr) {
+                            var detalleError = 'No fue posible guardar la información.';
+                            if (xhr && xhr.responseJSON && xhr.responseJSON.detalle) {
+                                detalleError = xhr.responseJSON.detalle;
+                            } else if (xhr && xhr.responseText) {
+                                detalleError = xhr.responseText.replace(/<[^>]*>?/gm, '').trim().substring(0, 250) || detalleError;
+                            }
+                            Swal.fire({icon: 'error', title: 'Error al guardar', text: detalleError});
                         });
                     });
                 }
@@ -1528,6 +1576,7 @@ if (isset($_POST)) {
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="AJAX_MODAL" value="1" />
+                                            <input type="hidden" name="AGREGAR_TRANSPORTE_MODAL" value="AGREGAR_TRANSPORTE_MODAL" />
                                             <div class="form-group">
                                                 <label for="NUEVOTRANSPORTE">Nombre</label>
                                                 <input type="text" class="form-control" id="NUEVOTRANSPORTE" name="NUEVOTRANSPORTE" value="<?php echo $NUEVOTRANSPORTE; ?>" placeholder="Nombre Transporte" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
@@ -1554,6 +1603,7 @@ if (isset($_POST)) {
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="AJAX_MODAL" value="1" />
+                                            <input type="hidden" name="AGREGAR_CONDUCTOR_MODAL" value="AGREGAR_CONDUCTOR_MODAL" />
                                             <div class="form-group">
                                                 <label for="NUEVOCONDUCTORRUT">Rut</label>
                                                 <input type="text" class="form-control" id="NUEVOCONDUCTORRUT" name="NUEVOCONDUCTORRUT" value="<?php echo $NUEVOCONDUCTORRUT; ?>" placeholder="Rut Conductor" <?php echo $DISABLEDFOLIO; ?> <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
