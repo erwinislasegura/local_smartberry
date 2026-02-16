@@ -56,6 +56,25 @@ class OPROCESO_ADO {
         return $this->conexion->lastInsertId();
     }
 
+    public function actualizarOrdenProceso(OPROCESO $OPROCESO) {
+        $sql = "UPDATE exportadora_oproceso
+                SET NUMERO_OPROCESO = ?,
+                    FECHA_TERMINO_ESTIMADA = ?,
+                    CANTIDAD_CAJA = ?,
+                    OBSERVACION_OPROCESO = ?,
+                    ID_USUARIOM = ?,
+                    MODIFICACION = SYSDATE()
+                WHERE ID_OPROCESO = ?";
+        $this->conexion->prepare($sql)->execute(array(
+            $OPROCESO->__GET('NUMERO_OPROCESO'),
+            $OPROCESO->__GET('FECHA_TERMINO_ESTIMADA'),
+            $OPROCESO->__GET('CANTIDAD_CAJA'),
+            $OPROCESO->__GET('OBSERVACION_OPROCESO'),
+            $OPROCESO->__GET('ID_USUARIOM'),
+            $OPROCESO->__GET('ID_OPROCESO')
+        ));
+    }
+
     public function limpiarDetalleOrdenProceso($IDOP) {
         $this->conexion->prepare("DELETE FROM exportadora_oproceso_mercado WHERE ID_OPROCESO = ?")->execute(array($IDOP));
         $this->conexion->prepare("DELETE FROM exportadora_oproceso_productor_variedad WHERE ID_OPROCESO = ?")->execute(array($IDOP));
@@ -90,6 +109,22 @@ class OPROCESO_ADO {
         $stmt = $this->conexion->prepare("SELECT ID_ESTANDAR FROM exportadora_oproceso_estandar WHERE ID_OPROCESO = ?");
         $stmt->execute(array($IDOP));
         return $stmt->fetchAll();
+    }
+
+    public function contarProcesosAsociados($IDOP) {
+        $stmt = $this->conexion->prepare("SELECT COUNT(*) AS TOTAL FROM fruta_proceso WHERE ID_OPROCESO = ?");
+        $stmt->execute(array($IDOP));
+        $r = $stmt->fetch();
+        return $r ? (int)$r['TOTAL'] : 0;
+    }
+
+    public function deshabilitarOrdenProceso($IDOP, $IDUSUARIO) {
+        $sql = "UPDATE exportadora_oproceso
+                SET ESTADO_REGISTRO = 0,
+                    ID_USUARIOM = ?,
+                    MODIFICACION = SYSDATE()
+                WHERE ID_OPROCESO = ?";
+        $this->conexion->prepare($sql)->execute(array($IDUSUARIO, $IDOP));
     }
 }
 ?>
