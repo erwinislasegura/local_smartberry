@@ -21,6 +21,9 @@
 <!--Charts-->
 <link rel="stylesheet" href="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.css">
 
+<!--UX Flow-->
+<link rel="stylesheet" type="text/css" href="../../assest/css/ux-flow-enhancements.css" />
+
 <!--Otros-->
 <!--JS -->
 <script src="../../assest/js/jquery.min.js"></script>    
@@ -28,3 +31,4 @@
 <script src="../../assest/js/sweetalert2@11.js"></script>
 <script src="../../tema/assets/js/head.js"></script>
 <script src="../../assest/js/tema-base.js"></script>
+<script src="../../assest/js/ux-flow-enhancements.js"></script>
