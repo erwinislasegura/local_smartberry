@@ -15,6 +15,7 @@ include_once '../../assest/controlador/ICARGA_ADO.php';
 include_once '../../assest/controlador/MERCADO_ADO.php';
 include_once '../../assest/controlador/RMERCADO_ADO.php';
 include_once '../../assest/controlador/REEXPORTACIONMERCADO_ADO.php';
+include_once '../../assest/controlador/OPROCESO_ADO.php';
 
 include_once '../../assest/controlador/DPINDUSTRIAL_ADO.php';
 include_once '../../assest/controlador/DPEXPORTACION_ADO.php';
@@ -39,6 +40,7 @@ $ICARGA_ADO =  new ICARGA_ADO();
 $MERCADO_ADO =  new MERCADO_ADO();
 $RMERCADO_ADO =  new RMERCADO_ADO();
 $REEXPORTACIONMERCADO_ADO =  new REEXPORTACIONMERCADO_ADO();
+$OPROCESO_ADO = new OPROCESO_ADO();
 
 $DPINDUSTRIAL_ADO =  new DPINDUSTRIAL_ADO();
 $DPEXPORTACION_ADO =  new DPEXPORTACION_ADO();
@@ -148,6 +150,7 @@ $ARRAYMERCADOSPRODUCTOR = array();
 $ARRAYMERCADOSESTANDAR = array();
 $LISTAMERCADOS = array();
 $MERCADOSNOPERMITIDOS = array();
+$ESTANDARESOP = array();
 
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
@@ -267,6 +270,23 @@ if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato)) {
         }
 
     endforeach;
+
+    $IDOPROCESO = 0;
+    if ($ARRAYPROCESO) {
+        $IDOPROCESO = isset($ARRAYPROCESO[0]['ID_OPROCESO']) ? (int)$ARRAYPROCESO[0]['ID_OPROCESO'] : 0;
+    }
+    if ($IDOPROCESO > 0) {
+        $ARRAYESTANDARESOP = $OPROCESO_ADO->listarEstandarPorOp($IDOPROCESO);
+        $ESTANDARESOP = array();
+        foreach ($ARRAYESTANDARESOP as $reo) {
+            $ESTANDARESOP[] = (int)$reo['ID_ESTANDAR'];
+        }
+        if (count($ESTANDARESOP) > 0) {
+            $ARRAYESTANDAR = array_values(array_filter($ARRAYESTANDAR, function ($re) use ($ESTANDARESOP) {
+                return in_array((int)$re['ID_ESTANDAR'], $ESTANDARESOP);
+            }));
+        }
+    }
 }
 //OBTENCION DE DATOS ENVIADOR A LA URL
 //PARA OPERACIONES DE EDICION , VISUALIZACION Y CREACION

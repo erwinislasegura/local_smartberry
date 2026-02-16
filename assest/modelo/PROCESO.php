@@ -32,6 +32,7 @@
         private   $ID_PVESPECIES;
         private   $ID_PRODUCTOR;
         private   $ID_TPROCESO;
+        private   $ID_OPROCESO;
         private   $ID_RMERCADO;
         private   $ID_EMPRESA;
         private   $ID_PLANTA;
