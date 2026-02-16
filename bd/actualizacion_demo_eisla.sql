@@ -25,5 +25,20 @@ WHERE t1.ID_RMERCADO > t2.ID_RMERCADO
   AND t1.ID_PRODUCTOR = t2.ID_PRODUCTOR
   AND t1.ID_MERCADO = t2.ID_MERCADO;
 
-ALTER TABLE fruta_rmercado
-  ADD UNIQUE KEY `uk_fruta_rmercado_productor_mercado` (`ID_PRODUCTOR`,`ID_MERCADO`);
+SET @idx_existe := (
+  SELECT COUNT(1)
+  FROM information_schema.statistics
+  WHERE table_schema = DATABASE()
+    AND table_name = 'fruta_rmercado'
+    AND index_name = 'uk_fruta_rmercado_productor_mercado'
+);
+
+SET @sql_idx := IF(
+  @idx_existe = 0,
+  'ALTER TABLE fruta_rmercado ADD UNIQUE KEY `uk_fruta_rmercado_productor_mercado` (`ID_PRODUCTOR`,`ID_MERCADO`)',
+  'SELECT "Indice uk_fruta_rmercado_productor_mercado ya existe"'
+);
+
+PREPARE stmt_idx FROM @sql_idx;
+EXECUTE stmt_idx;
+DEALLOCATE PREPARE stmt_idx;
