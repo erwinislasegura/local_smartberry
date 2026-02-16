@@ -877,7 +877,7 @@ if ($_POST) {
                             <div class="box-header with-border bg-success">                                   
                                 <h4 class="box-title">Registro Detalle</h4>                                        
                             </div>
-                            <form class="form" role="form" method="post" name="form_reg_dato" >
+                            <form class="form" role="form" method="post" name="form_reg_dato" id="form_reg_dato" >
                                 <div class="box-body form-element">
                                     <div class="form-group">
                                         <!-- Envía siempre 'off' si el checkbox está desmarcado -->
