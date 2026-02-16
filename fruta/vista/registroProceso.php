@@ -1639,37 +1639,44 @@ if (isset($_POST)) {
                 const formulario = document.getElementById('form_reg_dato');
                 const porcentajeExportacion = document.getElementById('PEXPORTACIONEXPOEX');
 
-                const mercadosPorProductor = <?php echo json_encode($ARRAYMERCADOSPRODUCTOR); ?>;
-                const productorSelect = document.getElementById('PRODUCTOR');
-                const mercadosWrap = document.getElementById('mercados-productor-wrap');
-                const mercadosLista = document.getElementById('mercados-productor-lista');
+                var mercadosPorProductor = <?php echo json_encode($ARRAYMERCADOSPRODUCTOR); ?>;
 
-                const actualizarMercadosProductor = () => {
-                    if (!productorSelect || !mercadosWrap || !mercadosLista) {
+                function actualizarMercadosProductor() {
+                    var $productor = $('#PRODUCTOR');
+                    var $productorHidden = $('#PRODUCTORE');
+                    var $contenedor = $('#mercados-productor-wrap');
+                    var $lista = $('#mercados-productor-lista');
+
+                    if (!$contenedor.length || !$lista.length) {
                         return;
                     }
 
-                    const idProductor = productorSelect.value;
-                    mercadosLista.innerHTML = '';
+                    var idProductor = '';
+                    if ($productor.length) {
+                        idProductor = $productor.val();
+                    }
+                    if ((!idProductor || idProductor === '') && $productorHidden.length) {
+                        idProductor = $productorHidden.val();
+                    }
+
+                    $lista.empty();
 
                     if (!idProductor || !mercadosPorProductor[idProductor] || mercadosPorProductor[idProductor].length === 0) {
-                        mercadosWrap.style.display = 'none';
+                        $contenedor.hide();
                         return;
                     }
 
-                    mercadosPorProductor[idProductor].forEach((nombreMercado) => {
-                        const badge = document.createElement('span');
-                        badge.className = 'badge badge-info mr-1 mb-1';
-                        badge.textContent = nombreMercado;
-                        mercadosLista.appendChild(badge);
+                    mercadosPorProductor[idProductor].forEach(function(nombreMercado) {
+                        $lista.append('<span class="badge badge-info mr-1 mb-1">' + nombreMercado + '</span>');
                     });
 
-                    mercadosWrap.style.display = '';
-                };
-
-                if (productorSelect) {
-                    productorSelect.addEventListener('change', actualizarMercadosProductor);
+                    $contenedor.show();
                 }
+
+                $(document).on('change select2:select', '#PRODUCTOR', function() {
+                    actualizarMercadosProductor();
+                });
+
                 actualizarMercadosProductor();
 
                 if (botonCerrar && formulario && porcentajeExportacion) {
