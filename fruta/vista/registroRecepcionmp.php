@@ -233,13 +233,16 @@ $RESPUESTAAJAXMODAL = array(
     'mensaje' => '',
     'tipo' => '',
     'id' => '',
-    'nombre' => ''
+    'nombre' => '',
+    'detalle' => ''
 );
 
 if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
     $NUEVOTRANSPORTE = trim($_REQUEST['NUEVOTRANSPORTE']);
     if ($NUEVOTRANSPORTE == "") {
         $MENSAJEMODAL = "TRANSPORTE_VACIO";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['detalle'] = 'Debe ingresar el nombre del transporte.';
     } else {
         $EXISTETRANSPORTE = "";
         foreach ($ARRAYTRANSPORTE as $r) {
@@ -294,6 +297,7 @@ if (isset($_REQUEST['AGREGAR_TRANSPORTE_MODAL'])) {
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
         $RESPUESTAAJAXMODAL['tipo'] = "TRANSPORTE";
         $RESPUESTAAJAXMODAL['id'] = $TRANSPORTE;
+        $RESPUESTAAJAXMODAL['detalle'] = '';
         if ($RESPUESTAAJAXMODAL['nombre'] == "") {
             $RESPUESTAAJAXMODAL['nombre'] = $NUEVOTRANSPORTE;
         }
@@ -308,7 +312,23 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
 
     if ($NUEVOCONDUCTORRUT == "" || $NUEVOCONDUCTORNOMBRE == "") {
         $MENSAJEMODAL = "CONDUCTOR_VACIO";
+        $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+        $RESPUESTAAJAXMODAL['detalle'] = 'Debe ingresar rut y nombre del conductor.';
     } else {
+        $RUTLIMPIO = preg_replace('/[^0-9kK]/', '', $NUEVOCONDUCTORRUT);
+        $RUTNUMERICO = preg_replace('/[^0-9]/', '', $RUTLIMPIO);
+        $DVDATO = strtoupper(substr($RUTLIMPIO, -1));
+        if ($RUTNUMERICO == "") {
+            $MENSAJEMODAL = "CONDUCTOR_RUT_INVALIDO";
+            $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
+            $RESPUESTAAJAXMODAL['detalle'] = 'El rut del conductor no tiene un formato válido.';
+        } else {
+            $NUEVOCONDUCTORRUT = $RUTNUMERICO;
+            if (!ctype_digit($DVDATO)) {
+                $DVCONDUCTOR = $DVDATO;
+            } else {
+                $DVCONDUCTOR = (int)$DVDATO;
+            }
         $EXISTECONDUCTOR = "";
         foreach ($ARRAYCONDUCTOR as $r) {
             if (trim((string)$r['RUT_CONDUCTOR']) == $NUEVOCONDUCTORRUT) {
@@ -329,7 +349,7 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
             $CONDUCTOR = new CONDUCTOR();
             $CONDUCTOR->__SET('NUMERO_CONDUCTOR', $NUMERO);
             $CONDUCTOR->__SET('RUT_CONDUCTOR', $NUEVOCONDUCTORRUT);
-            $CONDUCTOR->__SET('DV_CONDUCTOR', 0);
+            $CONDUCTOR->__SET('DV_CONDUCTOR', $DVCONDUCTOR);
             $CONDUCTOR->__SET('NOMBRE_CONDUCTOR', $NUEVOCONDUCTORNOMBRE);
             $CONDUCTOR->__SET('TELEFONO_CONDUCTOR', $NUEVOCONDUCTORTELEFONO);
             $CONDUCTOR->__SET('NOTA_CONDUCTOR', 'Registro rápido desde recepción MP');
@@ -361,12 +381,14 @@ if (isset($_REQUEST['AGREGAR_CONDUCTOR_MODAL'])) {
         $RESPUESTAAJAXMODAL['mensaje'] = $MENSAJEMODAL;
         $RESPUESTAAJAXMODAL['tipo'] = "CONDUCTOR";
         $RESPUESTAAJAXMODAL['id'] = $CONDUCTOR;
+        $RESPUESTAAJAXMODAL['detalle'] = '';
         if ($RESPUESTAAJAXMODAL['nombre'] == "") {
             $RESPUESTAAJAXMODAL['nombre'] = $NUEVOCONDUCTORNOMBRE;
         }
         $NUEVOCONDUCTORRUT = "";
         $NUEVOCONDUCTORNOMBRE = "";
         $NUEVOCONDUCTORTELEFONO = "";
+        }
     }
 }
 
@@ -1032,8 +1054,12 @@ if (isset($_POST)) {
                             data: $form.serialize(),
                             dataType: 'json'
                         }).done(function(resp) {
-                            if (!resp || resp.estado !== 'OK') {
-                                Swal.fire({icon: 'error', title: 'Error', text: 'No fue posible guardar la información.'});
+                            if (!resp) {
+                                Swal.fire({icon: 'error', title: 'Error', text: 'No hubo respuesta del servidor.'});
+                                return;
+                            }
+                            if (resp.estado !== 'OK') {
+                                Swal.fire({icon: 'error', title: 'Error al guardar', text: resp.detalle || resp.mensaje || 'No fue posible guardar la información.'});
                                 return;
                             }
 
@@ -1058,8 +1084,14 @@ if (isset($_POST)) {
                                 Swal.fire({icon: 'warning', title: 'Datos requeridos', text: 'Debe ingresar rut y nombre del conductor.'});
                                 $('#' + modalId).modal('show');
                             }
-                        }).fail(function() {
-                            Swal.fire({icon: 'error', title: 'Error', text: 'No fue posible guardar la información.'});
+                        }).fail(function(xhr) {
+                            var detalleError = 'No fue posible guardar la información.';
+                            if (xhr && xhr.responseJSON && xhr.responseJSON.detalle) {
+                                detalleError = xhr.responseJSON.detalle;
+                            } else if (xhr && xhr.responseText) {
+                                detalleError = xhr.responseText.replace(/<[^>]*>?/gm, '').trim().substring(0, 250) || detalleError;
+                            }
+                            Swal.fire({icon: 'error', title: 'Error al guardar', text: detalleError});
                         });
                     });
                 }
