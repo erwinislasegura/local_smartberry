@@ -545,15 +545,16 @@ if ($OPROCESO != "") {
             $ARRAYVARIEDADOP[(int)$rv['ID_PRODUCTOR']] = array();
         }
         $ARRAYVARIEDADOP[(int)$rv['ID_PRODUCTOR']][] = (int)$rv['ID_VESPECIES'];
+        $IDS_VARIEDAD_OP[(int)$rv['ID_VESPECIES']] = true;
     }
 
     $ARRAYPRODUCTOR = array_values(array_filter($ARRAYPRODUCTOR, function ($rp) use ($IDS_PRODUCTOR_OP) {
         return isset($IDS_PRODUCTOR_OP[(int)$rp['ID_PRODUCTOR']]);
     }));
 
-    $ARRAYVESPECIES = array_values(array_filter($ARRAYVESPECIES, function ($rv) use ($PRODUCTOR, $ARRAYVARIEDADOP) {
+    $ARRAYVESPECIES = array_values(array_filter($ARRAYVESPECIES, function ($rv) use ($PRODUCTOR, $ARRAYVARIEDADOP, $IDS_VARIEDAD_OP) {
         if ($PRODUCTOR == "" || !isset($ARRAYVARIEDADOP[(int)$PRODUCTOR])) {
-            return false;
+            return isset($IDS_VARIEDAD_OP[(int)$rv['ID_VESPECIES']]);
         }
         return in_array((int)$rv['ID_VESPECIES'], $ARRAYVARIEDADOP[(int)$PRODUCTOR]);
     }));
