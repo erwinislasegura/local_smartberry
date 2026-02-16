@@ -903,7 +903,7 @@ if ($OPROCESO != "") {
                                             <div class="form-group">
                                                 <label>Productor</label>
                                                 <input type="hidden" class="form-control" placeholder="PRODUCTOR" id="PRODUCTORE" name="PRODUCTORE" value="<?php echo $PRODUCTOR; ?>" />
-                                                <select class="form-control select2" id="PRODUCTOR" name="PRODUCTOR" style="width: 100%;" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?>>
+                                                <select class="form-control select2" id="PRODUCTOR" name="PRODUCTOR" style="width: 100%;" onchange="this.form.submit()" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> <?php echo $DISABLEDFOLIO; ?>>
                                                     <option></option>
                                                     <?php foreach ($ARRAYPRODUCTOR as $r) : ?>
                                                         <?php if ($ARRAYPRODUCTOR) {    ?>
